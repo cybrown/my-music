@@ -1,35 +1,106 @@
 import * as React from 'react';
 import PlaylistStore from '../stores/PlaylistStore';
 import PlaylistModel from '../models/Playlist';
-import {IHasDispatch} from '../utils/IHasDispatch';
+import SongInPlaylist from '../models/SongInPlaylist';
+import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
 import stopClickPropagation from '../utils/stopClickPropagation';
-import {Panel, ListGroup, ListGroupItem, ButtonGroup, Button, Glyphicon} from 'react-bootstrap';
+import {Panel, ListGroup, ListGroupItem, ButtonGroup, Button, Glyphicon, Modal} from 'react-bootstrap';
 
-interface PlaylistProps extends IHasDispatch {
-    playlist: PlaylistModel;
+export interface IPlaylistDispatcher {
+    playlistEntryPlay(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
+    playlistEntryRemove(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
+    playlistEntryMoveup(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
+    playlistEntryMovedown(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
+    playlistSaveCurrent(name: string): void;
+    playlistClear(): void;
 }
 
-export default class Playlist extends React.Component<PlaylistProps, {}> {
+interface PlaylistProps {
+    playlist: PlaylistModel;
+    dispatcher: IPlaylistDispatcher;
+}
+
+interface PlaylistState {
+    showModal?: boolean;
+}
+
+export default class Playlist extends React.Component<PlaylistProps, PlaylistState> {
+
+    nameInput: HTMLInputElement;
+
+    state: PlaylistState = {
+        showModal: false
+    };
+
+    showModal() {
+        this.setState({
+            showModal: true
+        });
+    }
+
+    savePlaylist() {
+        this.props.dispatcher.playlistSaveCurrent(this.nameInput.value);
+        this.setState({
+            showModal: false
+        });
+    }
+
+    onHideDialog() {
+        this.setState({
+            showModal: false
+        });
+    }
 
     render() {
         return (
-            <Panel header="Playlist">
+            <Panel header={<div>
+                               Playlist
+                               <span className="pull-right">
+                                   <ButtonGroup>
+                                       <Button onClick={() => this.showModal()}>
+                                           <Glyphicon glyph="floppy-disk" />
+                                       </Button>
+                                       <Button onClick={() => this.props.dispatcher.playlistClear()}>
+                                           <Glyphicon glyph="remove" />
+                                       </Button>
+                                   </ButtonGroup>
+                               </span>
+                           </div>}>
+                <Modal show={this.state.showModal} onHide={() => this.onHideDialog()}>
+                    <Modal.Header closeButton={true}>
+                        <Modal.Title>Playlist Name</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <input className="form-control"
+                               ref={nameInput => this.nameInput = nameInput as any}
+                               type="text" />
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button bsStyle="primary"
+                                onClick={() => this.savePlaylist()}>
+                            Save playlist
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                <ButtonGroup>
+
+                </ButtonGroup>
                 <ListGroup>
                     {this.props.playlist.map(entry =>
                         <ListGroupItem key={entry.uuid}
-                                       onClick={() => this.props.dispatch('playlist.entry.play', entry)}
+                                       onClick={() => this.props.dispatcher.playlistEntryPlay(entry)}
                                        className={entry.value.isPlaying ? 'active' : null}>
                             <ButtonGroup>
                                 <span className="btn btn-default"
-                                      onClick={stopClickPropagation(event => this.props.dispatch('playlist.entry.remove', entry))}>
+                                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryRemove(entry))}>
                                     <Glyphicon glyph="minus"/>
                                 </span>
                                 <span className="btn btn-default"
-                                      onClick={stopClickPropagation(event => this.props.dispatch('playlist.entry.moveup', entry))}>
+                                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryMoveup(entry))}>
                                     <Glyphicon glyph="arrow-up"/>
                                 </span>
                                 <span className="btn btn-default"
-                                      onClick={stopClickPropagation(event => this.props.dispatch('playlist.entry.movedown', entry))}>
+                                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryMovedown(entry))}>
                                     <Glyphicon glyph="arrow-down"/>
                                 </span>
                             </ButtonGroup>

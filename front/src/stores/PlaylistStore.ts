@@ -4,6 +4,8 @@ import SongInPlaylist from '../models/SongInPlaylist';
 import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
 import {IRegisterHandler} from '../Dispatcher';
 import {RepeatModeEnum} from '../components/RepeatMode';
+import {SavedPlaylists} from '../models/SavedPlaylists';
+import {newDict} from '../utils/Dict';
 
 export default class PlaylistStore {
 
@@ -13,6 +15,7 @@ export default class PlaylistStore {
     repeatMode: RepeatModeEnum = RepeatModeEnum.NONE;
     audioElement: HTMLAudioElement = null;
     stalled = false;
+    savedPlaylists: SavedPlaylists = newDict<string[]>();
 
     playEntry(playingEntry: DoubleLinkedListEntry<SongInPlaylist>) {
         this.playlist.map(entry => entry.value.isPlaying = false);
@@ -91,7 +94,11 @@ export default class PlaylistStore {
         }
     }
 
-    constructor (private when: IRegisterHandler) {
+    constructor (private when: IRegisterHandler, private songs: Song[]) {
+
+        if (localStorage.getItem('savedPlaylists')) {
+            this.savedPlaylists = JSON.parse(localStorage.getItem('savedPlaylists'));
+        }
 
         when('player.ended', () =>  this.onPlayerEnded());
 
@@ -145,5 +152,26 @@ export default class PlaylistStore {
         when('player.go.last', () => this.playLast());
 
         when('player.audio.events.stalled', () => this.stalled = true);
+
+        when('playlist.load.byName', (name: string) => {
+            const songs = this.savedPlaylists[name].map(uuid => this.songs.filter(song => song.uuid === uuid)[0]);
+            this.playlist.clear();
+            this.playSongsNext(songs);
+        });
+
+        when('playlist.save.current', (name: string) => {
+            this.savedPlaylists[name] = this.playlist.map(entry => entry.value.song.uuid);
+            localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
+        });
+
+        when('playlist.clear', () => {
+            this.playlist.clear();
+            this.song = null;
+        });
+
+        when('playlist.remove', (name: string) => {
+            delete this.savedPlaylists[name];
+            localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
+        });
     }
 }

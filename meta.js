@@ -3,7 +3,9 @@ var fs = require('fs');
 var mm = require('musicmetadata');
 var uuid = require('uuid');
 
-var results = [];
+var dataFilePath = './front/public/data.json';
+
+var results = require(dataFilePath);
 
 glob('./front/public/musics/**/*.@(mp3|m4a)', function (err, files) {
     var total = 0;
@@ -18,17 +20,24 @@ glob('./front/public/musics/**/*.@(mp3|m4a)', function (err, files) {
             if (err) {
                 console.log(file + ' !!! ' + err);
             } else {
-                results.push({
-                    uuid: uuid.v4(),
-                    title: tags.title,
-                    album: tags.album,
-                    artist: tags.artist[0],
-                    track: tags.track.no,
-                    musicId: file.match('./front/public/musics/(.*)')[1]
-                });
+                var musicId = file.match('./front/public/musics/(.*)')[1];
+                var idExists = results.filter(function (result) {
+                    return result.musicId === musicId;
+                }).length > 0;
+                if (!idExists) {
+                    results.push({
+                        uuid: uuid.v4(),
+                        title: tags.title,
+                        album: tags.album,
+                        artist: tags.artist[0],
+                        track: tags.track.no,
+                        musicId: musicId
+                    });
+                    console.log('Adding: ' + musicId)
+                }
             }
             if (current === total) {
-                fs.writeFile('./front/public/data.json', JSON.stringify(results), function (err) {
+                fs.writeFile(dataFilePath, JSON.stringify(results), function (err) {
                     if (err) return console.log(err);
                 });
             }

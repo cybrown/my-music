@@ -14,15 +14,6 @@ function normalize(str: string): string {
 
 declare var fetch: any;
 
-const dispatcher = new Dispatcher(doRender);
-const applicationStore = new ApplicationStore(dispatcher.when);
-
-function doRender() {
-    render(<MusicApplication store={applicationStore}
-                             dispatch={dispatcher.dispatch} />,
-           document.getElementById("react-main"));
-}
-
 fetch('data.json')
     .then((data: any) => data.json())
     .then((songs: Song[]) => {
@@ -48,6 +39,14 @@ fetch('data.json')
                 });
             });
         });
+        const dispatcher = new Dispatcher(doRender);
+        const applicationStore = new ApplicationStore(dispatcher.when, songs);
+
+        function doRender() {
+            render(<MusicApplication store={applicationStore}
+                                    dispatcher={dispatcher} />,
+                document.getElementById("react-main"));
+        }
         applicationStore.musicLibrary.artists = toArray(artists);
         doRender();
     });

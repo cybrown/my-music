@@ -34384,19 +34384,11 @@ process.umask = function() { return 0; };
 var events_1 = require('events');
 var Dispatcher = (function () {
     function Dispatcher(render) {
+        var _this = this;
         this.render = render;
-        this._dispatch = this.createDispatchFunction();
-        this._when = this.createWhenFunction();
+        this._when = function (eventName, handler) { return _this.on(eventName, handler); };
         this.emitter = new events_1.EventEmitter();
-        this.createDispatchFunction;
     }
-    Object.defineProperty(Dispatcher.prototype, "dispatch", {
-        get: function () {
-            return this._dispatch;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Object.defineProperty(Dispatcher.prototype, "when", {
         get: function () {
             return this._when;
@@ -34420,13 +34412,71 @@ var Dispatcher = (function () {
         return value;
         var _a;
     };
-    Dispatcher.prototype.createWhenFunction = function () {
-        var _this = this;
-        return function (eventName, handler) { return _this.on(eventName, handler); };
+    Dispatcher.prototype.playlistPlayAfter = function (songs) {
+        this.emit('playlist.playAfter', songs);
     };
-    Dispatcher.prototype.createDispatchFunction = function () {
-        var _this = this;
-        return function (eventName, value) { return _this.emit(eventName, value); };
+    Dispatcher.prototype.playlistClearAndPlay = function (songs) {
+        this.emit('playlist.clearAndPlay', songs);
+    };
+    Dispatcher.prototype.musiclibraryArtistSet = function (artist) {
+        this.emit('musiclibrary.artist.set', artist);
+    };
+    Dispatcher.prototype.musiclibraryAlbumSet = function (album) {
+        this.emit('musiclibrary.album.set', album);
+    };
+    Dispatcher.prototype.playlistAppend = function (songs) {
+        this.emit('playlist.append', songs);
+    };
+    Dispatcher.prototype.playlistEntryPlay = function (entry) {
+        this.emit('playlist.entry.play', entry);
+    };
+    Dispatcher.prototype.playlistEntryRemove = function (entry) {
+        this.emit('playlist.entry.remove', entry);
+    };
+    Dispatcher.prototype.playlistEntryMoveup = function (entry) {
+        this.emit('playlist.entry.moveup', entry);
+    };
+    Dispatcher.prototype.playlistEntryMovedown = function (entry) {
+        this.emit('playlist.entry.movedown', entry);
+    };
+    Dispatcher.prototype.playerAudioReady = function (audioElement) {
+        this.emit('player.audio.ready', audioElement);
+    };
+    Dispatcher.prototype.playerGoNext = function () {
+        this.emit('player.go.next');
+    };
+    Dispatcher.prototype.playerGoPrev = function () {
+        this.emit('player.go.prev');
+    };
+    Dispatcher.prototype.playerGoFirst = function () {
+        this.emit('player.go.first');
+    };
+    Dispatcher.prototype.playerGoLast = function () {
+        this.emit('player.go.last');
+    };
+    Dispatcher.prototype.playerEnded = function () {
+        this.emit('player.ended');
+    };
+    Dispatcher.prototype.playerAudioEventsStalled = function (event) {
+        this.emit('player.audio.events.stalled', event);
+    };
+    Dispatcher.prototype.playerAudioEventsError = function (event) {
+        this.emit('player.audio.events.error', event);
+    };
+    Dispatcher.prototype.playerRepeatSet = function (mode) {
+        this.emit('player.repeat.set', mode);
+    };
+    Dispatcher.prototype.playlistLoadPlaylist = function (name) {
+        this.emit('playlist.load.byName', name);
+    };
+    Dispatcher.prototype.playlistRemove = function (name) {
+        this.emit('playlist.remove', name);
+    };
+    Dispatcher.prototype.playlistSaveCurrent = function (name) {
+        this.emit('playlist.save.current', name);
+    };
+    Dispatcher.prototype.playlistClear = function () {
+        this.emit('playlist.clear');
     };
     return Dispatcher;
 })();
@@ -34442,11 +34492,6 @@ var ApplicationStore_1 = require('./stores/ApplicationStore');
 var Dispatcher_1 = require('./Dispatcher');
 function normalize(str) {
     return (str || '').toLowerCase();
-}
-var dispatcher = new Dispatcher_1.default(doRender);
-var applicationStore = new ApplicationStore_1.default(dispatcher.when);
-function doRender() {
-    react_dom_1.render(React.createElement(MusicApplication_1.default, {"store": applicationStore, "dispatch": dispatcher.dispatch}), document.getElementById("react-main"));
 }
 fetch('data.json')
     .then(function (data) { return data.json(); })
@@ -34473,11 +34518,16 @@ fetch('data.json')
             });
         });
     });
+    var dispatcher = new Dispatcher_1.default(doRender);
+    var applicationStore = new ApplicationStore_1.default(dispatcher.when, songs);
+    function doRender() {
+        react_dom_1.render(React.createElement(MusicApplication_1.default, {"store": applicationStore, "dispatcher": dispatcher}), document.getElementById("react-main"));
+    }
     applicationStore.musicLibrary.artists = Dict_1.toArray(artists);
     doRender();
 });
 
-},{"./Dispatcher":398,"./components/MusicApplication":400,"./stores/ApplicationStore":411,"./utils/Dict":414,"react":395,"react-dom":240}],400:[function(require,module,exports){
+},{"./Dispatcher":398,"./components/MusicApplication":400,"./stores/ApplicationStore":412,"./utils/Dict":415,"react":395,"react-dom":240}],400:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -34493,7 +34543,7 @@ var MusicApplication = (function (_super) {
         _super.apply(this, arguments);
     }
     MusicApplication.prototype.render = function () {
-        return (React.createElement(react_bootstrap_1.Grid, {"fluid": true}, React.createElement(MusicLibrary_1.default, {"store": this.props.store.musicLibrary, "dispatch": this.props.dispatch}), React.createElement(PlaylistAndPlayer_1.default, {"playlistStore": this.props.store.playlist, "dispatch": this.props.dispatch})));
+        return (React.createElement(react_bootstrap_1.Grid, {"fluid": true}, React.createElement(MusicLibrary_1.default, {"store": this.props.store.musicLibrary, "dispatcher": this.props.dispatcher}), React.createElement(PlaylistAndPlayer_1.default, {"playlistStore": this.props.store.playlist, "dispatcher": this.props.dispatcher})));
     };
     return MusicApplication;
 })(React.Component);
@@ -34517,27 +34567,30 @@ var MusicLibrary = (function (_super) {
         _super.apply(this, arguments);
     }
     MusicLibrary.prototype.playAlbum = function (album) {
-        this.props.dispatch('musiclibrary.album.set', album);
-        this.props.dispatch('playlist.clearAndPlay', album.songs);
+        this.props.dispatcher.musiclibraryAlbumSet(album);
+        this.props.dispatcher.playlistClearAndPlay(album.songs);
     };
     MusicLibrary.prototype.playAlbumNext = function (album) {
-        this.props.dispatch('playlist.playAfter', album.songs);
+        this.props.dispatcher.playlistPlayAfter(album.songs);
     };
     MusicLibrary.prototype.appendAlbum = function (album) {
-        this.props.dispatch('playlist.append', album.songs);
+        this.props.dispatcher.playlistAppend(album.songs);
     };
     MusicLibrary.prototype.playSongNow = function (song) {
-        var songs = this.props.store.currentAlbum.songs;
+        var songs = this.props.store.songs;
         var index = songs.indexOf(song);
         var firstPart = songs.slice(0, index);
         var lastPart = songs.slice(index + 1, songs.length);
-        this.props.dispatch('playlist.clearAndPlay', firstPart);
-        this.props.dispatch('playlist.playAfter', [song]);
-        this.props.dispatch('playlist.append', lastPart);
+        this.props.dispatcher.playlistClearAndPlay(firstPart);
+        this.props.dispatcher.playlistPlayAfter([song]);
+        this.props.dispatcher.playlistAppend(lastPart);
+    };
+    MusicLibrary.prototype.playOneSongNow = function (song) {
+        this.props.dispatcher.playlistClearAndPlay([song]);
     };
     MusicLibrary.prototype.render = function () {
         var _this = this;
-        return (React.createElement(react_bootstrap_1.Row, null, React.createElement(react_bootstrap_1.Col, {"sm": 3}, React.createElement(MusicLibraryArtistList_1.default, {"artists": this.props.store.artists, "artist": this.props.store.currentArtist, "setCurrentArtist": function (artist) { return _this.props.dispatch('musiclibrary.artist.set', artist); }})), React.createElement(react_bootstrap_1.Col, {"sm": 3}, React.createElement(MusicLibraryAlbumList_1.default, {"albums": this.props.store.albums, "album": this.props.store.currentAlbum, "setCurrentAlbum": function (album) { return _this.props.dispatch('musiclibrary.album.set', album); }, "playAlbumNext": function (album) { return _this.playAlbumNext(album); }, "appendAlbum": function (album) { return _this.appendAlbum(album); }, "playAlbum": function (album) { return _this.playAlbum(album); }})), React.createElement(react_bootstrap_1.Col, {"sm": 6}, React.createElement(MusicLibrarySongList_1.default, {"songs": this.props.store.songs, "playNow": function (song) { return _this.playSongNow(song); }, "playNext": function (song) { return _this.props.dispatch('playlist.playAfter', [song]); }, "playLast": function (song) { return _this.props.dispatch('playlist.append', [song]); }}))));
+        return (React.createElement(react_bootstrap_1.Row, null, React.createElement(react_bootstrap_1.Col, {"sm": 3}, React.createElement(MusicLibraryArtistList_1.default, {"artists": this.props.store.artists, "artist": this.props.store.currentArtist, "setCurrentArtist": function (artist) { return _this.props.dispatcher.musiclibraryArtistSet(artist); }})), React.createElement(react_bootstrap_1.Col, {"sm": 3}, React.createElement(MusicLibraryAlbumList_1.default, {"albums": this.props.store.albums, "album": this.props.store.currentAlbum, "setCurrentAlbum": function (album) { return _this.props.dispatcher.musiclibraryAlbumSet(album); }, "playAlbumNext": function (album) { return _this.playAlbumNext(album); }, "appendAlbum": function (album) { return _this.appendAlbum(album); }, "playAlbum": function (album) { return _this.playAlbum(album); }})), React.createElement(react_bootstrap_1.Col, {"sm": 6}, React.createElement(MusicLibrarySongList_1.default, {"songs": this.props.store.songs, "playNow": function (song) { return _this.playSongNow(song); }, "playOneNow": function (song) { return _this.playOneSongNow(song); }, "playNext": function (song) { return _this.props.dispatcher.playlistPlayAfter([song]); }, "playLast": function (song) { return _this.props.dispatcher.playlistAppend([song]); }}))));
     };
     return MusicLibrary;
 })(React.Component);
@@ -34571,7 +34624,7 @@ var MusicLibraryAlbumList = (function (_super) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MusicLibraryAlbumList;
 
-},{"../utils/stopClickPropagation":417,"react":395,"react-bootstrap":71}],403:[function(require,module,exports){
+},{"../utils/stopClickPropagation":418,"react":395,"react-bootstrap":71}],403:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -34615,7 +34668,7 @@ var MusicLibrarySongList = (function (_super) {
         var _this = this;
         return (React.createElement(react_bootstrap_1.Panel, {"header": "Songs"}, this.props.songs ?
             React.createElement(react_bootstrap_1.ListGroup, null, this.props.songs.map(function (song) {
-                return React.createElement(react_bootstrap_1.ListGroupItem, {"key": song.uuid}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playNow(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "play"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playNext(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "play"}), React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "plus"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playLast(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "plus"}))), React.createElement("span", null, song.track, " - ", song.title));
+                return React.createElement(react_bootstrap_1.ListGroupItem, {"key": song.uuid}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playNow(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "play"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playOneNow(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "play"}), "1"), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playNext(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "play"}), React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "plus"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.playLast(song); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "plus"}))), React.createElement("span", null, song.track, " - ", song.title));
             })) :
             React.createElement("div", null, "No songs to display")));
     };
@@ -34624,7 +34677,7 @@ var MusicLibrarySongList = (function (_super) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MusicLibrarySongList;
 
-},{"../utils/stopClickPropagation":417,"react":395,"react-bootstrap":71}],405:[function(require,module,exports){
+},{"../utils/stopClickPropagation":418,"react":395,"react-bootstrap":71}],405:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -34641,15 +34694,15 @@ var Player = (function (_super) {
     }
     Player.prototype.componentDidMount = function () {
         var _this = this;
-        this.props.dispatch('player.audio.ready', this.audioElement);
-        this.audioElement.addEventListener('ended', function () { return _this.props.dispatch('player.ended'); });
-        this.audioElement.addEventListener('stalled', function (event) { return _this.props.dispatch('player.audio.events.stalled', event); });
-        this.audioElement.addEventListener('error', function (event) { return _this.props.dispatch('player.audio.events.error', event); });
+        this.props.dispatcher.playerAudioReady(this.audioElement);
+        this.audioElement.addEventListener('ended', function () { return _this.props.dispatcher.playerEnded(); });
+        this.audioElement.addEventListener('stalled', function (event) { return _this.props.dispatcher.playerAudioEventsStalled(event); });
+        this.audioElement.addEventListener('error', function (event) { return _this.props.dispatcher.playerAudioEventsError(event); });
     };
     Player.prototype.render = function () {
         var _this = this;
-        return (React.createElement(react_bootstrap_2.Panel, {"header": "Player"}, React.createElement("div", null, React.createElement("audio", {"ref": function (audio) { return _this.audioElement = audio; }, "controls": true, "src": this.props.song && "/musics/" + this.props.song.musicId, "autoPlay": true})), React.createElement("div", null, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatch('player.go.first'); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "fast-backward"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatch('player.go.prev'); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "step-backward"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatch('player.go.next'); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "step-forward"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatch('player.go.last'); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "fast-forward"}))), React.createElement(RepeatMode_1.default, {"repeatMode": this.props.repeatMode, "dispatch": this.props.dispatch})), React.createElement("div", null, this.props.song &&
-            React.createElement("a", {"href": "https://www.google.com/search?q=lyrics+" + this.props.song.artist + "+" + this.props.song.title, "target": "_blank"}, "Lyrics")), React.createElement("div", null, this.props.stalled &&
+        return (React.createElement(react_bootstrap_2.Panel, {"header": "Player"}, React.createElement("div", null, React.createElement("audio", {"ref": function (audio) { return _this.audioElement = audio; }, "controls": true, "src": this.props.song && "/musics/" + this.props.song.musicId, "autoPlay": true})), React.createElement("div", null, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playerGoFirst(); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "fast-backward"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playerGoPrev(); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "step-backward"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playerGoNext(); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "step-forward"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playerGoLast(); }}, React.createElement(react_bootstrap_2.Glyphicon, {"glyph": "fast-forward"}))), React.createElement(RepeatMode_1.default, {"repeatMode": this.props.repeatMode, "setRepeatMode": function (mode) { return _this.props.dispatcher.playerRepeatSet(mode); }})), this.props.song &&
+            React.createElement("div", null, React.createElement("div", null, "Artist: ", this.props.song.artist), React.createElement("div", null, "Album: ", this.props.song.album), React.createElement("div", null, "Song title: ", this.props.song.title), React.createElement("div", null, "Song track: ", this.props.song.track), React.createElement("div", null, "Song uuid: ", this.props.song.uuid), React.createElement("div", null, React.createElement("a", {"href": "https://www.google.com/search?q=lyrics+" + this.props.song.artist + "+" + this.props.song.title, "target": "_blank"}, "Lyrics"))), React.createElement("div", null, this.props.stalled &&
             React.createElement(react_bootstrap_2.Label, {"bsStyle": "warning"}, "Stalled"))));
     };
     return Player;
@@ -34657,7 +34710,7 @@ var Player = (function (_super) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Player;
 
-},{"./RepeatMode":408,"react":395,"react-bootstrap":71}],406:[function(require,module,exports){
+},{"./RepeatMode":409,"react":395,"react-bootstrap":71}],406:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -34670,11 +34723,30 @@ var Playlist = (function (_super) {
     __extends(Playlist, _super);
     function Playlist() {
         _super.apply(this, arguments);
+        this.state = {
+            showModal: false
+        };
     }
+    Playlist.prototype.showModal = function () {
+        this.setState({
+            showModal: true
+        });
+    };
+    Playlist.prototype.savePlaylist = function () {
+        this.props.dispatcher.playlistSaveCurrent(this.nameInput.value);
+        this.setState({
+            showModal: false
+        });
+    };
+    Playlist.prototype.onHideDialog = function () {
+        this.setState({
+            showModal: false
+        });
+    };
     Playlist.prototype.render = function () {
         var _this = this;
-        return (React.createElement(react_bootstrap_1.Panel, {"header": "Playlist"}, React.createElement(react_bootstrap_1.ListGroup, null, this.props.playlist.map(function (entry) {
-            return React.createElement(react_bootstrap_1.ListGroupItem, {"key": entry.uuid, "onClick": function () { return _this.props.dispatch('playlist.entry.play', entry); }, "className": entry.value.isPlaying ? 'active' : null}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatch('playlist.entry.remove', entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "minus"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatch('playlist.entry.moveup', entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-up"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatch('playlist.entry.movedown', entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-down"}))), React.createElement("span", null, entry.value.song.title));
+        return (React.createElement(react_bootstrap_1.Panel, {"header": React.createElement("div", null, "Playlist", React.createElement("span", {"className": "pull-right"}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.showModal(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "floppy-disk"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playlistClear(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "remove"})))))}, React.createElement(react_bootstrap_1.Modal, {"show": this.state.showModal, "onHide": function () { return _this.onHideDialog(); }}, React.createElement(react_bootstrap_1.Modal.Header, {"closeButton": true}, React.createElement(react_bootstrap_1.Modal.Title, null, "Playlist Name")), React.createElement(react_bootstrap_1.Modal.Body, null, React.createElement("input", {"className": "form-control", "ref": function (nameInput) { return _this.nameInput = nameInput; }, "type": "text"})), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, {"bsStyle": "primary", "onClick": function () { return _this.savePlaylist(); }}, "Save playlist"))), React.createElement(react_bootstrap_1.ButtonGroup, null), React.createElement(react_bootstrap_1.ListGroup, null, this.props.playlist.map(function (entry) {
+            return React.createElement(react_bootstrap_1.ListGroupItem, {"key": entry.uuid, "onClick": function () { return _this.props.dispatcher.playlistEntryPlay(entry); }, "className": entry.value.isPlaying ? 'active' : null}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatcher.playlistEntryRemove(entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "minus"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatcher.playlistEntryMoveup(entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-up"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatcher.playlistEntryMovedown(entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-down"}))), React.createElement("span", null, entry.value.song.title));
         }))));
     };
     return Playlist;
@@ -34682,7 +34754,7 @@ var Playlist = (function (_super) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Playlist;
 
-},{"../utils/stopClickPropagation":417,"react":395,"react-bootstrap":71}],407:[function(require,module,exports){
+},{"../utils/stopClickPropagation":418,"react":395,"react-bootstrap":71}],407:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -34692,20 +34764,46 @@ var React = require('react');
 var Player_1 = require('./Player');
 var Playlist_1 = require('./Playlist');
 var react_bootstrap_1 = require('react-bootstrap');
+var PlaylistManager_1 = require('./PlaylistManager');
 var PlaylistAndPlayer = (function (_super) {
     __extends(PlaylistAndPlayer, _super);
     function PlaylistAndPlayer() {
         _super.apply(this, arguments);
     }
     PlaylistAndPlayer.prototype.render = function () {
-        return (React.createElement(react_bootstrap_1.Row, null, React.createElement(react_bootstrap_1.Col, {"sm": 4}, React.createElement(Playlist_1.default, {"playlist": this.props.playlistStore.playlist, "dispatch": this.props.dispatch})), React.createElement(react_bootstrap_1.Col, {"sm": 8}, React.createElement(Player_1.default, {"song": this.props.playlistStore.song, "stalled": this.props.playlistStore.stalled, "repeatMode": this.props.playlistStore.repeatMode, "dispatch": this.props.dispatch}))));
+        return (React.createElement(react_bootstrap_1.Row, null, React.createElement(react_bootstrap_1.Col, {"sm": 3}, React.createElement(PlaylistManager_1.default, {"playlists": this.props.playlistStore.savedPlaylists, "dispatcher": this.props.dispatcher})), React.createElement(react_bootstrap_1.Col, {"sm": 3}, React.createElement(Playlist_1.default, {"playlist": this.props.playlistStore.playlist, "dispatcher": this.props.dispatcher})), React.createElement(react_bootstrap_1.Col, {"sm": 6}, React.createElement(Player_1.default, {"song": this.props.playlistStore.song, "stalled": this.props.playlistStore.stalled, "repeatMode": this.props.playlistStore.repeatMode, "dispatcher": this.props.dispatcher}))));
     };
     return PlaylistAndPlayer;
 })(React.Component);
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PlaylistAndPlayer;
 
-},{"./Player":405,"./Playlist":406,"react":395,"react-bootstrap":71}],408:[function(require,module,exports){
+},{"./Player":405,"./Playlist":406,"./PlaylistManager":408,"react":395,"react-bootstrap":71}],408:[function(require,module,exports){
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var React = require('react');
+var react_bootstrap_1 = require('react-bootstrap');
+var stopClickPropagation_1 = require('../utils/stopClickPropagation');
+var PlaylistManager = (function (_super) {
+    __extends(PlaylistManager, _super);
+    function PlaylistManager() {
+        _super.apply(this, arguments);
+    }
+    PlaylistManager.prototype.render = function () {
+        var _this = this;
+        return (React.createElement(react_bootstrap_1.Panel, {"header": "Saved Playlists"}, React.createElement(react_bootstrap_1.ListGroup, null, Object.keys(this.props.playlists).map(function (playlistName) {
+            return React.createElement(react_bootstrap_1.ListGroupItem, {"key": playlistName, "onClick": function () { return _this.props.dispatcher.playlistLoadPlaylist(playlistName); }}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function () { return _this.props.dispatcher.playlistRemove(playlistName); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "minus"}))), playlistName);
+        }))));
+    };
+    return PlaylistManager;
+})(React.Component);
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = PlaylistManager;
+
+},{"../utils/stopClickPropagation":418,"react":395,"react-bootstrap":71}],409:[function(require,module,exports){
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -34720,7 +34818,7 @@ var RepeatMode = (function (_super) {
     }
     RepeatMode.prototype.render = function () {
         var _this = this;
-        return (React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"bsStyle": this.props.repeatMode === RepeatModeEnum.NONE ? 'primary' : 'default', "onClick": function () { return _this.props.dispatch('player.repeat.set', RepeatModeEnum.NONE); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-right"})), React.createElement(react_bootstrap_1.Button, {"bsStyle": this.props.repeatMode === RepeatModeEnum.ONE ? 'primary' : 'default', "onClick": function () { return _this.props.dispatch('player.repeat.set', RepeatModeEnum.ONE); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "repeat"}), "1"), React.createElement(react_bootstrap_1.Button, {"bsStyle": this.props.repeatMode === RepeatModeEnum.ALL ? 'primary' : 'default', "onClick": function () { return _this.props.dispatch('player.repeat.set', RepeatModeEnum.ALL); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "repeat"}))));
+        return (React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"bsStyle": this.props.repeatMode === RepeatModeEnum.NONE ? 'primary' : 'default', "onClick": function () { return _this.props.setRepeatMode(RepeatModeEnum.NONE); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-right"})), React.createElement(react_bootstrap_1.Button, {"bsStyle": this.props.repeatMode === RepeatModeEnum.ONE ? 'primary' : 'default', "onClick": function () { return _this.props.setRepeatMode(RepeatModeEnum.ONE); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "repeat"}), "1"), React.createElement(react_bootstrap_1.Button, {"bsStyle": this.props.repeatMode === RepeatModeEnum.ALL ? 'primary' : 'default', "onClick": function () { return _this.props.setRepeatMode(RepeatModeEnum.ALL); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "repeat"}))));
     };
     return RepeatMode;
 })(React.Component);
@@ -34733,7 +34831,7 @@ exports.default = RepeatMode;
 })(exports.RepeatModeEnum || (exports.RepeatModeEnum = {}));
 var RepeatModeEnum = exports.RepeatModeEnum;
 
-},{"react":395,"react-bootstrap":71}],409:[function(require,module,exports){
+},{"react":395,"react-bootstrap":71}],410:[function(require,module,exports){
 var DoubleLinkedList_1 = require('../utils/DoubleLinkedList');
 var DoubleLinkedListEntry_1 = require('../utils/DoubleLinkedListEntry');
 var SongInPlaylist_1 = require('./SongInPlaylist');
@@ -34778,7 +34876,7 @@ var Playlist = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Playlist;
 
-},{"../utils/DoubleLinkedList":415,"../utils/DoubleLinkedListEntry":416,"./SongInPlaylist":410}],410:[function(require,module,exports){
+},{"../utils/DoubleLinkedList":416,"../utils/DoubleLinkedListEntry":417,"./SongInPlaylist":411}],411:[function(require,module,exports){
 var SongInPlaylist = (function () {
     function SongInPlaylist(song) {
         this.song = song;
@@ -34788,21 +34886,22 @@ var SongInPlaylist = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = SongInPlaylist;
 
-},{}],411:[function(require,module,exports){
+},{}],412:[function(require,module,exports){
 var MusicLibraryStore_1 = require('./MusicLibraryStore');
 var PlaylistStore_1 = require('./PlaylistStore');
 var ApplicationStore = (function () {
-    function ApplicationStore(when) {
+    function ApplicationStore(when, songs) {
         this.when = when;
+        this.songs = songs;
         this.musicLibrary = new MusicLibraryStore_1.default(this.when);
-        this.playlist = new PlaylistStore_1.default(this.when);
+        this.playlist = new PlaylistStore_1.default(this.when, this.songs);
     }
     return ApplicationStore;
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = ApplicationStore;
 
-},{"./MusicLibraryStore":412,"./PlaylistStore":413}],412:[function(require,module,exports){
+},{"./MusicLibraryStore":413,"./PlaylistStore":414}],413:[function(require,module,exports){
 var Dict_1 = require('../utils/Dict');
 var MusicLibraryStore = (function () {
     function MusicLibraryStore(when) {
@@ -34827,19 +34926,25 @@ var MusicLibraryStore = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MusicLibraryStore;
 
-},{"../utils/Dict":414}],413:[function(require,module,exports){
+},{"../utils/Dict":415}],414:[function(require,module,exports){
 var Playlist_1 = require('../models/Playlist');
 var RepeatMode_1 = require('../components/RepeatMode');
+var Dict_1 = require('../utils/Dict');
 var PlaylistStore = (function () {
-    function PlaylistStore(when) {
+    function PlaylistStore(when, songs) {
         var _this = this;
         this.when = when;
+        this.songs = songs;
         this.playlist = new Playlist_1.default();
         this.song = null;
         this.currentEntry = null;
         this.repeatMode = RepeatMode_1.RepeatModeEnum.NONE;
         this.audioElement = null;
         this.stalled = false;
+        this.savedPlaylists = Dict_1.newDict();
+        if (localStorage.getItem('savedPlaylists')) {
+            this.savedPlaylists = JSON.parse(localStorage.getItem('savedPlaylists'));
+        }
         when('player.ended', function () { return _this.onPlayerEnded(); });
         when('player.audio.ready', function (audio) {
             _this.audioElement = audio;
@@ -34883,6 +34988,23 @@ var PlaylistStore = (function () {
         when('player.go.next', function () { return _this.playNext(); });
         when('player.go.last', function () { return _this.playLast(); });
         when('player.audio.events.stalled', function () { return _this.stalled = true; });
+        when('playlist.load.byName', function (name) {
+            var songs = _this.savedPlaylists[name].map(function (uuid) { return _this.songs.filter(function (song) { return song.uuid === uuid; })[0]; });
+            _this.playlist.clear();
+            _this.playSongsNext(songs);
+        });
+        when('playlist.save.current', function (name) {
+            _this.savedPlaylists[name] = _this.playlist.map(function (entry) { return entry.value.song.uuid; });
+            localStorage.setItem('savedPlaylists', JSON.stringify(_this.savedPlaylists));
+        });
+        when('playlist.clear', function () {
+            _this.playlist.clear();
+            _this.song = null;
+        });
+        when('playlist.remove', function (name) {
+            delete _this.savedPlaylists[name];
+            localStorage.setItem('savedPlaylists', JSON.stringify(_this.savedPlaylists));
+        });
     }
     PlaylistStore.prototype.playEntry = function (playingEntry) {
         this.playlist.map(function (entry) { return entry.value.isPlaying = false; });
@@ -34964,7 +35086,7 @@ var PlaylistStore = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = PlaylistStore;
 
-},{"../components/RepeatMode":408,"../models/Playlist":409}],414:[function(require,module,exports){
+},{"../components/RepeatMode":409,"../models/Playlist":410,"../utils/Dict":415}],415:[function(require,module,exports){
 function newDict() {
     return Object.create(null);
 }
@@ -34974,7 +35096,7 @@ function toArray(dict) {
 }
 exports.toArray = toArray;
 
-},{}],415:[function(require,module,exports){
+},{}],416:[function(require,module,exports){
 var DoubleLinkedList = (function () {
     function DoubleLinkedList() {
     }
@@ -35075,7 +35197,7 @@ var DoubleLinkedList = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DoubleLinkedList;
 
-},{}],416:[function(require,module,exports){
+},{}],417:[function(require,module,exports){
 var DoubleLinkedListEntry = (function () {
     function DoubleLinkedListEntry(value) {
         this.value = value;
@@ -35088,7 +35210,7 @@ var DoubleLinkedListEntry = (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DoubleLinkedListEntry;
 
-},{}],417:[function(require,module,exports){
+},{}],418:[function(require,module,exports){
 function stopClickPropagation(func) {
     return function (event) {
         event.stopPropagation();

@@ -6,6 +6,7 @@ import stopClickPropagation from '../utils/stopClickPropagation';
 interface MusicLibrarySongListProps {
     songs: Song[];
     playNow: (song: Song) => void;
+    playOneNow: (song: Song) => void;
     playNext: (song: Song) => void;
     playLast: (song: Song) => void;
 }
@@ -23,6 +24,10 @@ export default class MusicLibrarySongList extends React.Component<MusicLibrarySo
                                     <span className="btn btn-default"
                                           onClick={stopClickPropagation(() => this.props.playNow(song))}>
                                         <Glyphicon glyph="play"/>
+                                    </span>
+                                    <span className="btn btn-default"
+                                          onClick={stopClickPropagation(() => this.props.playOneNow(song))}>
+                                        <Glyphicon glyph="play"/>1
                                     </span>
                                     <span className="btn btn-default"
                                           onClick={stopClickPropagation(() => this.props.playNext(song))}>

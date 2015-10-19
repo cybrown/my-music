@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {ButtonGroup, Button, Label, Glyphicon} from 'react-bootstrap';
-import {IHasDispatch} from '../utils/IHasDispatch';
 
-interface RepeatModeProps extends IHasDispatch {
+interface RepeatModeProps {
     repeatMode: RepeatModeEnum;
+    setRepeatMode: (mode: RepeatModeEnum) => void;
 }
 
 export default class RepeatMode extends React.Component<RepeatModeProps, {}> {
@@ -12,15 +12,15 @@ export default class RepeatMode extends React.Component<RepeatModeProps, {}> {
         return (
             <ButtonGroup>
                 <Button bsStyle={this.props.repeatMode === RepeatModeEnum.NONE ? 'primary' : 'default'}
-                        onClick={() => this.props.dispatch('player.repeat.set', RepeatModeEnum.NONE)}>
+                        onClick={() => this.props.setRepeatMode(RepeatModeEnum.NONE)}>
                     <Glyphicon glyph="arrow-right" />
                 </Button>
                 <Button bsStyle={this.props.repeatMode === RepeatModeEnum.ONE ? 'primary' : 'default'}
-                        onClick={() => this.props.dispatch('player.repeat.set', RepeatModeEnum.ONE)}>
+                        onClick={() => this.props.setRepeatMode(RepeatModeEnum.ONE)}>
                     <Glyphicon glyph="repeat" />1
                 </Button>
                 <Button bsStyle={this.props.repeatMode === RepeatModeEnum.ALL ? 'primary' : 'default'}
-                        onClick={() => this.props.dispatch('player.repeat.set', RepeatModeEnum.ALL)}>
+                        onClick={() => this.props.setRepeatMode(RepeatModeEnum.ALL)}>
                     <Glyphicon glyph="repeat" />
                 </Button>
             </ButtonGroup>
