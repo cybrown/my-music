@@ -34478,6 +34478,9 @@ var Dispatcher = (function () {
     Dispatcher.prototype.playlistClear = function () {
         this.emit('playlist.clear');
     };
+    Dispatcher.prototype.playlistRandom = function () {
+        this.emit('playlist.random');
+    };
     return Dispatcher;
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -34745,7 +34748,7 @@ var Playlist = (function (_super) {
     };
     Playlist.prototype.render = function () {
         var _this = this;
-        return (React.createElement(react_bootstrap_1.Panel, {"header": React.createElement("div", null, "Playlist", React.createElement("span", {"className": "pull-right"}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.showModal(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "floppy-disk"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playlistClear(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "remove"})))))}, React.createElement(react_bootstrap_1.Modal, {"show": this.state.showModal, "onHide": function () { return _this.onHideDialog(); }}, React.createElement(react_bootstrap_1.Modal.Header, {"closeButton": true}, React.createElement(react_bootstrap_1.Modal.Title, null, "Playlist Name")), React.createElement(react_bootstrap_1.Modal.Body, null, React.createElement("input", {"className": "form-control", "ref": function (nameInput) { return _this.nameInput = nameInput; }, "type": "text"})), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, {"bsStyle": "primary", "onClick": function () { return _this.savePlaylist(); }}, "Save playlist"))), React.createElement(react_bootstrap_1.ButtonGroup, null), React.createElement(react_bootstrap_1.ListGroup, null, this.props.playlist.map(function (entry) {
+        return (React.createElement(react_bootstrap_1.Panel, {"header": React.createElement("div", null, "Playlist", React.createElement("span", {"className": "pull-right"}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.showModal(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "floppy-disk"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playlistClear(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "remove"})), React.createElement(react_bootstrap_1.Button, {"onClick": function () { return _this.props.dispatcher.playlistRandom(); }}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "random"})))))}, React.createElement(react_bootstrap_1.Modal, {"show": this.state.showModal, "onHide": function () { return _this.onHideDialog(); }}, React.createElement(react_bootstrap_1.Modal.Header, {"closeButton": true}, React.createElement(react_bootstrap_1.Modal.Title, null, "Playlist Name")), React.createElement(react_bootstrap_1.Modal.Body, null, React.createElement("input", {"className": "form-control", "ref": function (nameInput) { return _this.nameInput = nameInput; }, "type": "text"})), React.createElement(react_bootstrap_1.Modal.Footer, null, React.createElement(react_bootstrap_1.Button, {"bsStyle": "primary", "onClick": function () { return _this.savePlaylist(); }}, "Save playlist"))), React.createElement(react_bootstrap_1.ButtonGroup, null), React.createElement(react_bootstrap_1.ListGroup, null, this.props.playlist.map(function (entry) {
             return React.createElement(react_bootstrap_1.ListGroupItem, {"key": entry.uuid, "onClick": function () { return _this.props.dispatcher.playlistEntryPlay(entry); }, "className": entry.value.isPlaying ? 'active' : null}, React.createElement(react_bootstrap_1.ButtonGroup, null, React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatcher.playlistEntryRemove(entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "minus"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatcher.playlistEntryMoveup(entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-up"})), React.createElement("span", {"className": "btn btn-default", "onClick": stopClickPropagation_1.default(function (event) { return _this.props.dispatcher.playlistEntryMovedown(entry); })}, React.createElement(react_bootstrap_1.Glyphicon, {"glyph": "arrow-down"}))), React.createElement("span", null, entry.value.song.title));
         }))));
     };
@@ -35005,6 +35008,15 @@ var PlaylistStore = (function () {
             delete _this.savedPlaylists[name];
             localStorage.setItem('savedPlaylists', JSON.stringify(_this.savedPlaylists));
         });
+        when('playlist.random', function () {
+            var entries = _this.playlist.map(function (x) { return x; });
+            _this.playlist.clear();
+            while (entries.length) {
+                var randomIndex = Math.floor(Math.random() * entries.length);
+                _this.playlist.list.push(entries[randomIndex]);
+                entries.splice(randomIndex, 1);
+            }
+        });
     }
     PlaylistStore.prototype.playEntry = function (playingEntry) {
         this.playlist.map(function (entry) { return entry.value.isPlaying = false; });
@@ -35115,6 +35127,8 @@ var DoubleLinkedList = (function () {
             this.last.isLast = false;
             entry.prev = this.last;
             entry.next = this.first;
+            entry.isLast = true;
+            entry.isFirst = false;
             this.first.prev = entry;
             this.last = entry;
         }

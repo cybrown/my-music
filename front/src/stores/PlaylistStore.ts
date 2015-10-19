@@ -173,5 +173,15 @@ export default class PlaylistStore {
             delete this.savedPlaylists[name];
             localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
         });
+
+        when('playlist.random', () => {
+            const entries = this.playlist.map(x => x);
+            this.playlist.clear();
+            while (entries.length) {
+                const randomIndex = Math.floor(Math.random() * entries.length);
+                this.playlist.list.push(entries[randomIndex]);
+                entries.splice(randomIndex, 1);
+            }
+        });
     }
 }

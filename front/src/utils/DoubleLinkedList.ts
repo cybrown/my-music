@@ -18,6 +18,8 @@ export default class DoubleLinkedList<T> {
             this.last.isLast = false;
             entry.prev = this.last;
             entry.next = this.first;
+            entry.isLast = true;
+            entry.isFirst = false;
             this.first.prev = entry;
             this.last = entry;
         }

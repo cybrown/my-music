@@ -128,4 +128,8 @@ export default class Dispatcher {
     playlistClear(): void {
         this.emit('playlist.clear');
     }
+
+    playlistRandom(): void {
+        this.emit('playlist.random');
+    }
 }

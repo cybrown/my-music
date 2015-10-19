@@ -13,6 +13,7 @@ export interface IPlaylistDispatcher {
     playlistEntryMovedown(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
     playlistSaveCurrent(name: string): void;
     playlistClear(): void;
+    playlistRandom(): void;
 }
 
 interface PlaylistProps {
@@ -62,6 +63,9 @@ export default class Playlist extends React.Component<PlaylistProps, PlaylistSta
                                        </Button>
                                        <Button onClick={() => this.props.dispatcher.playlistClear()}>
                                            <Glyphicon glyph="remove" />
+                                       </Button>
+                                       <Button onClick={() => this.props.dispatcher.playlistRandom()}>
+                                           <Glyphicon glyph="random" />
                                        </Button>
                                    </ButtonGroup>
                                </span>
