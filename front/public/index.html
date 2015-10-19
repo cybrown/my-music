@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+        <style>
+            html, body, #react-main, #react-main > * {
+                height: 100%;
+            }
+            body {
+                overflow: hidden;
+            }
+            .panel {
+                height: 100%;
+                margin-bottom: 0;
+                position: relative;
+            }
+            .panel-body {
+                position: absolute;
+                top: 41px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                overflow: scroll;
+            }
+            .container-fluid > .row {
+                height: 50%;
+            }
+            .container-fluid > .row > [class^=col-] {
+                height: 100%;
+            }
+            [class^=col-] {
+                padding-left: 0;
+                padding-right: 0;
+            }
+            .list-group {
+                margin-bottom: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="react-main"></div>
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="app.js"></script>
+    </body>
+</html>

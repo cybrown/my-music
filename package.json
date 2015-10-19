@@ -1,0 +1,34 @@
+{
+  "name": "music",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "front-watch-typescript": "tsc -p front --watch ",
+    "front-typescript": "tsc -p front",
+    "front-watch-browserify": "watchify tmp/front/js/application.js -o front/public/app.js",
+    "front-browserify": "browserify -e tmp/front/js/application.js -o front/public/app.js",
+    "front-serve": "http-server front/public",
+    "front-watch": "parallelshell \"npm run front-watch-typescript\" \"npm run front-watch-browserify\" \"npm run front-serve\" ",
+    "front-uglify": "uglify -s front/public/app.js -o front/public/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "^11.2.0",
+    "http-server": "^0.8.5",
+    "parallelshell": "^2.0.0",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "typescript": "^1.6.2",
+    "uglify": "^0.1.5",
+    "watchify": "^3.4.0",
+    "react-bootstrap": "^0.27.1"
+  },
+  "dependencies": {
+    "glob": "^5.0.15",
+    "musicmetadata": "^2.0.2",
+    "uuid": "^2.0.1"
+  }
+}
