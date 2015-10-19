@@ -5,7 +5,7 @@ import SongInPlaylist from './SongInPlaylist';
 
 export default class Playlist {
 
-    list = new DoubleLinkedList<SongInPlaylist>();
+    private list = new DoubleLinkedList<SongInPlaylist>();
 
     appendSong(song: Song) {
         this.list.push(new DoubleLinkedListEntry(new SongInPlaylist(song)));
@@ -37,5 +37,15 @@ export default class Playlist {
 
     map<T>(func: (entry: DoubleLinkedListEntry<SongInPlaylist>) => T) {
         return this.list.map(func);
+    }
+
+    randomize() {
+        const entries = this.map(x => x);
+        this.clear();
+        while (entries.length) {
+            const randomIndex = Math.floor(Math.random() * entries.length);
+            this.list.push(entries[randomIndex]);
+            entries.splice(randomIndex, 1);
+        }
     }
 }

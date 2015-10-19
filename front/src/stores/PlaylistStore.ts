@@ -175,13 +175,7 @@ export default class PlaylistStore {
         });
 
         when('playlist.random', () => {
-            const entries = this.playlist.map(x => x);
-            this.playlist.clear();
-            while (entries.length) {
-                const randomIndex = Math.floor(Math.random() * entries.length);
-                this.playlist.list.push(entries[randomIndex]);
-                entries.splice(randomIndex, 1);
-            }
+            this.playlist.randomize();
         });
     }
 }

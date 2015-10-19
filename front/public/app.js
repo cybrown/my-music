@@ -34874,6 +34874,15 @@ var Playlist = (function () {
     Playlist.prototype.map = function (func) {
         return this.list.map(func);
     };
+    Playlist.prototype.randomize = function () {
+        var entries = this.map(function (x) { return x; });
+        this.clear();
+        while (entries.length) {
+            var randomIndex = Math.floor(Math.random() * entries.length);
+            this.list.push(entries[randomIndex]);
+            entries.splice(randomIndex, 1);
+        }
+    };
     return Playlist;
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -35009,13 +35018,7 @@ var PlaylistStore = (function () {
             localStorage.setItem('savedPlaylists', JSON.stringify(_this.savedPlaylists));
         });
         when('playlist.random', function () {
-            var entries = _this.playlist.map(function (x) { return x; });
-            _this.playlist.clear();
-            while (entries.length) {
-                var randomIndex = Math.floor(Math.random() * entries.length);
-                _this.playlist.list.push(entries[randomIndex]);
-                entries.splice(randomIndex, 1);
-            }
+            _this.playlist.randomize();
         });
     }
     PlaylistStore.prototype.playEntry = function (playingEntry) {
