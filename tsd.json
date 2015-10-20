@@ -5,9 +5,6 @@
   "path": "typings",
   "bundle": "typings/tsd.d.ts",
   "installed": {
-    "react-bootstrap/react-bootstrap.d.ts": {
-      "commit": "af5b8275d1f2b92738b93fddabc461fc20c553a1"
-    },
     "react/react.d.ts": {
       "commit": "af5b8275d1f2b92738b93fddabc461fc20c553a1"
     },
