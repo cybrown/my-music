@@ -5,7 +5,12 @@ var uuid = require('uuid');
 
 var dataFilePath = './front/public/data.json';
 
-var results = require(dataFilePath);
+var results = [];
+try {
+    results = require(dataFilePath);
+} catch (e) {
+
+}
 
 glob('./front/public/musics/**/*.@(mp3|m4a)', function (err, files) {
     var total = 0;
