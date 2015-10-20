@@ -5,6 +5,7 @@ import SongInPlaylist from '../models/SongInPlaylist';
 import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
 import stopClickPropagation from '../utils/stopClickPropagation';
 import {Panel, ListGroup, ListGroupItem, ButtonGroup, Button, Glyphicon, Modal} from 'react-bootstrap';
+import ConfirmButton from './ConfirmButton';
 
 export interface IPlaylistDispatcher {
     playlistEntryPlay(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
@@ -53,31 +54,38 @@ export default class Playlist extends React.Component<PlaylistProps, PlaylistSta
     }
 
     render() {
+        const headerContent = (
+            <div>
+                Playlist
+                <span className="pull-right">
+                    <ButtonGroup>
+                        <Button onClick={() => this.showModal()}>
+                            <Glyphicon glyph="floppy-disk" />
+                        </Button>
+                        <ConfirmButton onClick={() => this.props.dispatcher.playlistClear()}>
+                            <Glyphicon glyph="remove" />
+                        </ConfirmButton>
+                        <Button onClick={() => this.props.dispatcher.playlistRandom()}>
+                            <Glyphicon glyph="random" />
+                        </Button>
+                    </ButtonGroup>
+                </span>
+            </div>
+        );
         return (
-            <Panel header={<div>
-                               Playlist
-                               <span className="pull-right">
-                                   <ButtonGroup>
-                                       <Button onClick={() => this.showModal()}>
-                                           <Glyphicon glyph="floppy-disk" />
-                                       </Button>
-                                       <Button onClick={() => this.props.dispatcher.playlistClear()}>
-                                           <Glyphicon glyph="remove" />
-                                       </Button>
-                                       <Button onClick={() => this.props.dispatcher.playlistRandom()}>
-                                           <Glyphicon glyph="random" />
-                                       </Button>
-                                   </ButtonGroup>
-                               </span>
-                           </div>}>
+            <Panel header={headerContent}>
                 <Modal show={this.state.showModal} onHide={() => this.onHideDialog()}>
                     <Modal.Header closeButton={true}>
                         <Modal.Title>Playlist Name</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <input className="form-control"
-                               ref={nameInput => this.nameInput = nameInput as any}
-                               type="text" />
+                        <form onSubmit={(event) => {this.savePlaylist(); event.preventDefault();}}>
+                            <input className="form-control"
+                                   autoFocus={true}
+                                   ref={nameInput => this.nameInput = nameInput as any}
+                                   type="text" />
+                            <button style={{display: 'none'}}></button>
+                        </form>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button bsStyle="primary"
