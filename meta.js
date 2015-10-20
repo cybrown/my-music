@@ -11,20 +11,20 @@ glob('./front/public/musics/**/*.@(mp3|m4a)', function (err, files) {
     var total = 0;
     var current = 0;
     files.forEach(function (file) {
-        total++;
         console.log(file);
-        mm(fs.createReadStream(file), function (err, tags) {
-            current++;
-            if (current == 1)
-                console.log(tags);
-            if (err) {
-                console.log(file + ' !!! ' + err);
-            } else {
-                var musicId = file.match('./front/public/musics/(.*)')[1];
-                var idExists = results.filter(function (result) {
-                    return result.musicId === musicId;
-                }).length > 0;
-                if (!idExists) {
+        var musicId = file.match('./front/public/musics/(.*)')[1];
+        var idExists = results.filter(function (result) {
+            return result.musicId === musicId;
+        }).length > 0;
+        if (!idExists) {
+            total++;
+            mm(fs.createReadStream(file), function (err, tags) {
+                current++;
+                if (current == 1)
+                    console.log(tags);
+                if (err) {
+                    console.log(file + ' !!! ' + err);
+                } else {
                     results.push({
                         uuid: uuid.v4(),
                         title: tags.title,
@@ -33,14 +33,15 @@ glob('./front/public/musics/**/*.@(mp3|m4a)', function (err, files) {
                         track: tags.track.no,
                         musicId: musicId
                     });
-                    console.log('Adding: ' + musicId)
+                    console.log('Adding: ' + musicId);
                 }
-            }
-            if (current === total) {
-                fs.writeFile(dataFilePath, JSON.stringify(results), function (err) {
-                    if (err) return console.log(err);
-                });
-            }
-        });
+                if (current === total) {
+                    fs.writeFile(dataFilePath, JSON.stringify(results), function (err) {
+                        if (err) return console.log(err);
+                        console.log('File written \\o/')
+                    });
+                }
+            });
+        }
     });
 });
