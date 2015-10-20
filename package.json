@@ -9,8 +9,10 @@
     "front-typescript": "tsc -p front",
     "front-watch-browserify": "watchify tmp/front/js/application.js -o front/public/app.js",
     "front-browserify": "browserify -e tmp/front/js/application.js -o front/public/app.js",
+    "front-build": "npm run front-clean && npm run front-typescript && npm run front-browserify",
+    "front-clean": "rimraf front/public/app.js && rimraf tmp/front",
     "front-serve": "http-server front/public",
-    "front-watch": "parallelshell \"npm run front-watch-typescript\" \"npm run front-watch-browserify\" \"npm run front-serve\" ",
+    "front-watch": "npm run front-build && parallelshell \"npm run front-watch-typescript\" \"npm run front-watch-browserify\" \"npm run front-serve\" ",
     "front-uglify": "uglify -s front/public/app.js -o front/public/app.js"
   },
   "author": "",
@@ -20,11 +22,12 @@
     "http-server": "^0.8.5",
     "parallelshell": "^2.0.0",
     "react": "^0.14.0",
+    "react-bootstrap": "^0.27.1",
     "react-dom": "^0.14.0",
+    "rimraf": "^2.4.3",
     "typescript": "^1.6.2",
     "uglify": "^0.1.5",
-    "watchify": "^3.4.0",
-    "react-bootstrap": "^0.27.1"
+    "watchify": "^3.4.0"
   },
   "dependencies": {
     "glob": "^5.0.15",
