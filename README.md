@@ -10,3 +10,7 @@
 
 ## Install project
 * Copy all the front/public directory to a static file server (apache, nginx, even dropbox...)
+
+
+## Trello board
+[Link to Trello](https://trello.com/b/E9cS5nQN/music)
