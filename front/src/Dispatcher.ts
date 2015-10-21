@@ -132,4 +132,8 @@ export default class Dispatcher {
     playlistRandom(): void {
         this.emit('playlist.random');
     }
+
+    playerAudioEventsCanPlay(event: Event): void {
+        this.emit('player.audio.events.canplay');
+    }
 }

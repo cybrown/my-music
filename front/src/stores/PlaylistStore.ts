@@ -177,5 +177,9 @@ export default class PlaylistStore {
         when('playlist.random', () => {
             this.playlist.randomize();
         });
+
+        when('player.audio.events.canplay', () => {
+            this.stalled = false;
+        });
     }
 }

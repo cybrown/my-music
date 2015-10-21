@@ -14,6 +14,7 @@ export interface IPlayerDispatcher {
     playerAudioEventsStalled(event: Event): void;
     playerAudioEventsError(event: Event): void;
     playerRepeatSet(mode: RepeatModeEnum): void;
+    playerAudioEventsCanPlay(event: Event): void;
 }
 
 interface PlayerProps {
@@ -32,6 +33,7 @@ export default class Player extends React.Component<PlayerProps, {}> {
         this.audioElement.addEventListener('ended', () => this.props.dispatcher.playerEnded());
         this.audioElement.addEventListener('stalled', event => this.props.dispatcher.playerAudioEventsStalled(event));
         this.audioElement.addEventListener('error', event => this.props.dispatcher.playerAudioEventsError(event));
+        this.audioElement.addEventListener('canplay', event => this.props.dispatcher.playerAudioEventsCanPlay(event));
     }
 
     render() {
