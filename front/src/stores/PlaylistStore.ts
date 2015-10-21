@@ -181,5 +181,17 @@ export default class PlaylistStore {
         when('player.audio.events.canplay', () => {
             this.stalled = false;
         });
+
+        when('player.action.pause', () => {
+            this.audioElement.pause();
+        });
+
+        when('player.action.play', () => {
+            this.audioElement.play();
+        });
+
+        when('player.volume.set', (volume: number) => {
+            this.audioElement.volume = volume;
+        });
     }
 }

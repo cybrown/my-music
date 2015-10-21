@@ -3,6 +3,7 @@ import Song from '../models/Song';
 import {ButtonGroup, Button} from 'react-bootstrap';
 import {default as RepeatMode, RepeatModeEnum} from './RepeatMode';
 import {Panel, Glyphicon, Label } from 'react-bootstrap';
+import Audio from './Audio';
 
 export interface IPlayerDispatcher {
     playerAudioReady(audioElement: HTMLAudioElement): void; // 'player.audio.ready'
@@ -26,43 +27,9 @@ interface PlayerProps {
 
 export default class Player extends React.Component<PlayerProps, {}> {
 
-    audioElement: HTMLAudioElement;
-
-    componentDidMount() {
-        this.props.dispatcher.playerAudioReady(this.audioElement);
-        this.audioElement.addEventListener('ended', () => this.props.dispatcher.playerEnded());
-        this.audioElement.addEventListener('stalled', event => this.props.dispatcher.playerAudioEventsStalled(event));
-        this.audioElement.addEventListener('error', event => this.props.dispatcher.playerAudioEventsError(event));
-        this.audioElement.addEventListener('canplay', event => this.props.dispatcher.playerAudioEventsCanPlay(event));
-    }
-
     render() {
         return (
-            <Panel header="Player">
-                <div>
-                    <audio ref={audio => this.audioElement = (audio as any)}
-                           controls={true}
-                           src={this.props.song && `/musics/${this.props.song.musicId}`}
-                           autoPlay={true} />
-                </div>
-                <div>
-                    <ButtonGroup>
-                        <Button onClick={() => this.props.dispatcher.playerGoFirst()}>
-                            <Glyphicon glyph="fast-backward" />
-                        </Button>
-                        <Button onClick={() => this.props.dispatcher.playerGoPrev()}>
-                            <Glyphicon glyph="step-backward" />
-                        </Button>
-                        <Button onClick={() => this.props.dispatcher.playerGoNext()}>
-                            <Glyphicon glyph="step-forward" />
-                        </Button>
-                        <Button onClick={() => this.props.dispatcher.playerGoLast()}>
-                            <Glyphicon glyph="fast-forward" />
-                        </Button>
-                    </ButtonGroup>
-                    <RepeatMode repeatMode={this.props.repeatMode}
-                                setRepeatMode={mode => this.props.dispatcher.playerRepeatSet(mode)} />
-                </div>
+            <Panel header="Song info">
                 {this.props.song &&
                     <div>
                         <div>Artist: {this.props.song.artist}</div>

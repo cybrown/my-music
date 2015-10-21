@@ -136,4 +136,16 @@ export default class Dispatcher {
     playerAudioEventsCanPlay(event: Event): void {
         this.emit('player.audio.events.canplay');
     }
+
+    playerActionPlay(): void {
+        this.emit('player.action.play');
+    }
+
+    playerActionPause(): void {
+        this.emit('player.action.pause');
+    }
+
+    playerVolumeSet(volume: number): void {
+        this.emit('player.volume.set', volume);
+    }
 }

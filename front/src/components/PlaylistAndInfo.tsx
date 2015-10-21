@@ -10,19 +10,19 @@ import PlaylistStore from '../stores/PlaylistStore';
 import {Row, Col} from 'react-bootstrap';
 import {default as PlaylistManager, IPlaylistManagerDispatcher} from './PlaylistManager';
 
-export interface IPlaylistAndPlayerDispatcher extends
+export interface IPlaylistAndInfoDispatcher extends
     IPlayerDispatcher,
     IPlaylistDispatcher,
     IPlaylistManagerDispatcher {
 
 }
 
-interface PlaylistAndPlayerProps {
+interface PlaylistAndInfoProps {
     playlistStore: PlaylistStore;
-    dispatcher: IPlaylistAndPlayerDispatcher;
+    dispatcher: IPlaylistAndInfoDispatcher;
 }
 
-export default class PlaylistAndPlayer extends React.Component<PlaylistAndPlayerProps, {}> {
+export default class PlaylistAndInfo extends React.Component<PlaylistAndInfoProps, {}> {
 
     render() {
         return (
