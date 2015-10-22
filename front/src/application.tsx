@@ -46,7 +46,7 @@ function bootstrapApp() {
         });
     });
     const dispatcher = new Dispatcher(doRender);
-    const applicationStore = new ApplicationStore(dispatcher.when, songs);
+    const applicationStore = new ApplicationStore(dispatcher.on, songs);
 
     function doRender() {
         render(<MusicApplication store={applicationStore}

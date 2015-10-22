@@ -2,7 +2,7 @@ import Song from '../models/Song';
 import Playlist from '../models/Playlist';
 import SongInPlaylist from '../models/SongInPlaylist';
 import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
-import {IRegisterHandler} from '../Dispatcher';
+import {IRegisterHandler, On, initEvents} from '../Dispatcher';
 import {RepeatModeEnum} from '../components/RepeatMode';
 import {SavedPlaylists} from '../models/SavedPlaylists';
 import {newDict} from '../utils/Dict';
@@ -16,6 +16,14 @@ export default class PlaylistStore {
     audioElement: HTMLAudioElement = null;
     savedPlaylists: SavedPlaylists = newDict<string[]>();
 
+    constructor (private when: IRegisterHandler, private songs: Song[]) {
+        initEvents(when, this);
+        if (localStorage.getItem('savedPlaylists')) {
+            this.savedPlaylists = JSON.parse(localStorage.getItem('savedPlaylists'));
+        }
+    }
+
+    @On('playlist.entry.play')
     playEntry(playingEntry: DoubleLinkedListEntry<SongInPlaylist>) {
         this.playlist.map(entry => entry.value.isPlaying = false);
         playingEntry.value.isPlaying = true;
@@ -32,6 +40,7 @@ export default class PlaylistStore {
         this.song = null;
     }
 
+    @On('playlist.playAfter')
     playSongsNext(songs: Song[]) {
         if (songs.length) {
             this.playlist.appendSong(songs[0]);
@@ -40,12 +49,14 @@ export default class PlaylistStore {
         }
     }
 
+    @On('playlist.go.first')
     playFirst() {
         if (this.playlist.first) {
             this.playEntry(this.playlist.first);
         }
     }
 
+    @On('playlist.go.prev')
     playPrev() {
         if (this.currentEntry) {
             if ((this.audioElement && this.audioElement.currentTime >= 3)) {
@@ -60,6 +71,7 @@ export default class PlaylistStore {
         }
     }
 
+    @On('playlist.go.next')
     playNext() {
         if (this.currentEntry) {
             if (this.currentEntry.isLast && this.repeatMode === RepeatModeEnum.ALL) {
@@ -70,12 +82,14 @@ export default class PlaylistStore {
         }
     }
 
+    @On('playlist.go.last')
     playLast() {
         if (this.playlist.last) {
             this.playEntry(this.playlist.last);
         }
     }
 
+    @On('player.ended')
     onPlayerEnded() {
         if (this.repeatMode === RepeatModeEnum.ONE) {
             this.playEntry(this.currentEntry);
@@ -93,86 +107,78 @@ export default class PlaylistStore {
         }
     }
 
-    constructor (private when: IRegisterHandler, private songs: Song[]) {
-
-        if (localStorage.getItem('savedPlaylists')) {
-            this.savedPlaylists = JSON.parse(localStorage.getItem('savedPlaylists'));
-        }
-
-        when('player.ended', () => this.onPlayerEnded());
-
-        when('player.audio.ready', (audio: HTMLAudioElement) => {
-            this.audioElement = audio;
-        });
-
-        when('playlist.clearAndPlay', (songs: Song[]) => {
-            this.playlist.clear();
-            this.playSongsNext(songs);
-        });
-
-        when('playlist.playAfter', (songs: Song[]) => {
-            this.playSongsNext(songs);
-        });
-
-        when('playlist.append', (songs: Song[]) => {
-            songs.forEach(song => this.playlist.appendSong(song));
-        });
-
-        when('playlist.entry.play', (entry: DoubleLinkedListEntry<SongInPlaylist>) =>  {
-            this.playEntry(entry);
-        });
-
-        when('playlist.entry.remove', (entry: DoubleLinkedListEntry<SongInPlaylist>) => {
-            if (entry.value.isPlaying) {
-                if (entry.isFirst && entry.isLast) {
-                    this.playNone();
-                } else if (entry.isLast) {
-                    this.playEntry(entry.prev);
-                } else {
-                    this.playEntry(entry.next);
-                }
+    @On('playlist.entry.remove')
+    playlistEntryRemove(entry: DoubleLinkedListEntry<SongInPlaylist>) {
+        if (entry.value.isPlaying) {
+            if (entry.isFirst && entry.isLast) {
+                this.playNone();
+            } else if (entry.isLast) {
+                this.playEntry(entry.prev);
+            } else {
+                this.playEntry(entry.next);
             }
-            this.playlist.remove(entry);
-        });
+        }
+        this.playlist.remove(entry);
+    }
 
-        when('playlist.entry.moveup', (entry: DoubleLinkedListEntry<SongInPlaylist>) => {
-            this.playlist.movePrev(entry);
-        });
+    @On('player.audio.ready')
+    playerAudioReady(audio: HTMLAudioElement) {
+        this.audioElement = audio;
+    }
 
-        when('playlist.entry.movedown', (entry: DoubleLinkedListEntry<SongInPlaylist>) => {
-            this.playlist.moveNext(entry);
-        });
+    @On('playlist.clearAndPlay')
+    playlistClearAndPlay(songs: Song[]) {
+        this.playlist.clear();
+        this.playSongsNext(songs);
+    }
 
-        when('playlist.repeat.set', (mode: RepeatModeEnum) => this.repeatMode = mode);
+    @On('playlist.append')
+    playlistAppend(songs: Song[]) {
+        songs.forEach(song => this.playlist.appendSong(song));
+    }
 
-        when('playlist.go.first', () => this.playFirst());
-        when('playlist.go.prev', () => this.playPrev());
-        when('playlist.go.next', () => this.playNext());
-        when('playlist.go.last', () => this.playLast());
+    @On('playlist.entry.moveup')
+    playlistEntryMoveup(entry: DoubleLinkedListEntry<SongInPlaylist>) {
+        this.playlist.movePrev(entry);
+    }
 
-        when('playlist.load.byName', (name: string) => {
-            const songs = this.savedPlaylists[name].map(uuid => this.songs.filter(song => song.uuid === uuid)[0]);
-            this.playlist.clear();
-            this.playSongsNext(songs);
-        });
+    @On('playlist.entry.movedown')
+    playlistEntryMovedown(entry: DoubleLinkedListEntry<SongInPlaylist>) {
+        this.playlist.moveNext(entry);
+    }
 
-        when('playlist.save.current', (name: string) => {
-            this.savedPlaylists[name] = this.playlist.map(entry => entry.value.song.uuid);
-            localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
-        });
+    @On('playlist.repeat.set')
+    playlistRepeatSet(mode: RepeatModeEnum) {
+        this.repeatMode = mode;
+    }
 
-        when('playlist.clear', () => {
-            this.playlist.clear();
-            this.song = null;
-        });
+    @On('playlist.load.byName')
+    playlistLoadByName(name: string) {
+        const songs = this.savedPlaylists[name].map(uuid => this.songs.filter(song => song.uuid === uuid)[0]);
+        this.playlist.clear();
+        this.playSongsNext(songs);
+    }
 
-        when('playlist.remove', (name: string) => {
-            delete this.savedPlaylists[name];
-            localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
-        });
+    @On('playlist.save.current')
+    playlistSaveCurrent(name: string) {
+        this.savedPlaylists[name] = this.playlist.map(entry => entry.value.song.uuid);
+        localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
+    }
 
-        when('playlist.random', () => {
-            this.playlist.randomize();
-        });
+    @On('playlist.clear')
+    playlistClear() {
+        this.playlist.clear();
+        this.song = null;
+    }
+
+    @On('playlist.remove')
+    playlistRemove(name: string) {
+        delete this.savedPlaylists[name];
+        localStorage.setItem('savedPlaylists', JSON.stringify(this.savedPlaylists));
+    }
+
+    @On('playlist.random')
+    playlistRandom() {
+        this.playlist.randomize();
     }
 }

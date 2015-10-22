@@ -6,7 +6,8 @@
         "outDir": "../tmp/front/js",
         "rootDir": "src",
         "sourceMap": false,
-        "jsx": "react"
+        "jsx": "react",
+        "experimentalDecorators": true
     },
     "exclude": [
         "node_modules"

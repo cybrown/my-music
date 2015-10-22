@@ -30,9 +30,9 @@ export default class Audio extends React.Component<AudioProps, {}> {
     render() {
         return (
             <audio ref={audio => this.audioElement = (audio as any)}
-                    controls={this.props.showControls}
-                    src={this.props.song && `/musics/${this.props.song.musicId}`}
-                    autoPlay />
+                   controls={this.props.showControls}
+                   src={this.props.song && `/musics/${this.props.song.musicId}`}
+                   autoPlay />
         );
     }
 }

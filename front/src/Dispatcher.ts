@@ -6,21 +6,36 @@ import SongInPlaylist from './models/SongInPlaylist';
 import DoubleLinkedListEntry from './utils/DoubleLinkedListEntry';
 import {RepeatModeEnum} from './components/RepeatMode';
 
+type FunctionWithOnEvent = Function & {__onEvent: string};
+
 export interface IRegisterHandler {
     (event: string, handler: IEventHandler): void;
 }
 
 export interface IEventHandler {
-    (value: any): void;
+    (...args: any[]): void;
+}
+
+export function On(eventName: string): MethodDecorator {
+    return function (target: any, key: string | symbol, descriptor: TypedPropertyDescriptor<Object>) {
+        if (typeof target[key] === 'function') {
+            target[key].__onEvent = eventName;
+        }
+    }
+}
+
+export function initEvents(when: IRegisterHandler, that: Object) {
+    const prototype = Object.getPrototypeOf(that);
+    for (let key in prototype) {
+        const method = prototype[key];
+        if (typeof method === 'function' && method.__onEvent) {
+            ((method: FunctionWithOnEvent) => when(method.__onEvent, (...args: any[]) => method.call(that, ...args)))(method);
+            console.log(`Listener <${method.__onEvent}> on ${prototype.constructor.name}`);
+        }
+    }
 }
 
 export default class Dispatcher {
-
-    private _when: IRegisterHandler = (eventName: string, handler: IEventHandler) => this.on(eventName, handler);
-
-    get when(): IRegisterHandler {
-        return this._when;
-    }
 
     private emitter = new EventEmitter();
 
@@ -28,8 +43,7 @@ export default class Dispatcher {
 
     }
 
-    private on(eventName: string, listener: Function) {
-        console.log(`Listener for: ${eventName}`);
+    on = (eventName: string, listener: Function) => {
         return this.emitter.on(eventName, listener);
     }
 

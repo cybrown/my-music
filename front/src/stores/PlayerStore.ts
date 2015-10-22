@@ -2,7 +2,7 @@ import Song from '../models/Song';
 import Playlist from '../models/Playlist';
 import SongInPlaylist from '../models/SongInPlaylist';
 import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
-import {IRegisterHandler} from '../Dispatcher';
+import {IRegisterHandler, On, initEvents} from '../Dispatcher';
 import {RepeatModeEnum} from '../components/RepeatMode';
 import {SavedPlaylists} from '../models/SavedPlaylists';
 import {newDict} from '../utils/Dict';
@@ -14,27 +14,36 @@ export default class PlaylistStore {
     stalled = false;
 
     constructor (private when: IRegisterHandler) {
+        initEvents(when, this);
+    }
 
-        when('player.audio.ready', (audio: HTMLAudioElement) => {
-            this.audioElement = audio;
-        });
+    @On('player.audio.ready')
+    playerAudioReady(audio: HTMLAudioElement) {
+        this.audioElement = audio;
+    }
 
-        when('player.audio.events.stalled', () => this.stalled = true);
+    @On('player.action.pause')
+    pause() {
+        this.audioElement.pause();
+    }
 
-        when('player.audio.events.canplay', () => {
-            this.stalled = false;
-        });
+    @On('player.audio.events.stalled')
+    setStalled() {
+        this.stalled = true;
+    }
 
-        when('player.action.pause', () => {
-            this.audioElement.pause();
-        });
+    @On('player.audio.events.canplay')
+    setCanPlay() {
+        this.stalled = false;
+    }
 
-        when('player.action.play', () => {
-            this.audioElement.play();
-        });
+    @On('player.action.play')
+    play() {
+        this.audioElement.play();
+    }
 
-        when('player.volume.set', (volume: number) => {
-            this.audioElement.volume = volume;
-        });
+    @On('player.volume.set')
+    setVolume(volume: number) {
+        this.audioElement.volume = volume;
     }
 }
