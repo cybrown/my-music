@@ -5,27 +5,12 @@ import {default as RepeatMode, RepeatModeEnum} from './RepeatMode';
 import {Panel, Glyphicon, Label } from 'react-bootstrap';
 import Audio from './Audio';
 
-export interface IPlayerDispatcher {
-    playerAudioReady(audioElement: HTMLAudioElement): void; // 'player.audio.ready'
-    playerGoNext(): void;
-    playerGoPrev(): void;
-    playerGoFirst(): void;
-    playerGoLast(): void;
-    playerEnded(): void;
-    playerAudioEventsStalled(event: Event): void;
-    playerAudioEventsError(event: Event): void;
-    playerRepeatSet(mode: RepeatModeEnum): void;
-    playerAudioEventsCanPlay(event: Event): void;
-}
-
-interface PlayerProps {
+interface SongInfoProps {
     song: Song;
     stalled: boolean;
-    repeatMode: RepeatModeEnum;
-    dispatcher: IPlayerDispatcher;
 }
 
-export default class Player extends React.Component<PlayerProps, {}> {
+export default class SongInfo extends React.Component<SongInfoProps, {}> {
 
     render() {
         return (

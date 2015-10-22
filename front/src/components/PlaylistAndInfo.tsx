@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {default as Player, IPlayerDispatcher} from './Player';
+import SongInfo from './SongInfo';
 import {default as PlaylistComponent, IPlaylistDispatcher} from './Playlist';
 import Playlist from '../models/Playlist';
 import SongInPlaylist from '../models/SongInPlaylist';
@@ -11,11 +11,8 @@ import {Row, Col} from 'react-bootstrap';
 import {default as PlaylistManager, IPlaylistManagerDispatcher} from './PlaylistManager';
 
 export interface IPlaylistAndInfoDispatcher extends
-    IPlayerDispatcher,
     IPlaylistDispatcher,
-    IPlaylistManagerDispatcher {
-
-}
+    IPlaylistManagerDispatcher { }
 
 interface PlaylistAndInfoProps {
     playlistStore: PlaylistStore;
@@ -36,10 +33,8 @@ export default class PlaylistAndInfo extends React.Component<PlaylistAndInfoProp
                                        dispatcher={this.props.dispatcher} />
                 </Col>
                 <Col sm={6}>
-                    <Player song={this.props.playlistStore.song}
-                            stalled={this.props.playlistStore.stalled}
-                            repeatMode={this.props.playlistStore.repeatMode}
-                            dispatcher={this.props.dispatcher} />
+                    <SongInfo song={this.props.playlistStore.song}
+                              stalled={this.props.playlistStore.stalled} />
                 </Col>
             </Row>
         );
