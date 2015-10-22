@@ -16,16 +16,14 @@ export default class MusicLibraryStore {
         initEvents(when, this);
     }
 
-    @On('musiclibrary.artist.set')
-    musiclibraryArtistSet(artist: Artist) {
+    @On musiclibraryArtistSet(artist: Artist) {
         this.albums = toArray(artist.albums);
         this.currentAlbum = null;
         this.currentArtist = artist;
         this.songs = [];
     }
 
-    @On('musiclibrary.album.set')
-    musiclibraryAlbumSet(album: Album) {
+    @On musiclibraryAlbumSet(album: Album) {
         this.songs = album.songs;
         this.currentAlbum = album;
     }

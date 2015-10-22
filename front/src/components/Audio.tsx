@@ -6,7 +6,7 @@ export interface IAudioDispatcher {
     playerAudioReady(audioElement: HTMLAudioElement): void;
     playerAudioEventsStalled(event: Event): void;
     playerAudioEventsError(event: Event): void;
-    playerAudioEventsCanPlay(event: Event): void;
+    playerAudioEventsCanplay(event: Event): void;
 }
 
 interface AudioProps {
@@ -24,7 +24,7 @@ export default class Audio extends React.Component<AudioProps, {}> {
         this.audioElement.addEventListener('ended', () => this.props.dispatcher.playerEnded());
         this.audioElement.addEventListener('stalled', event => this.props.dispatcher.playerAudioEventsStalled(event));
         this.audioElement.addEventListener('error', event => this.props.dispatcher.playerAudioEventsError(event));
-        this.audioElement.addEventListener('canplay', event => this.props.dispatcher.playerAudioEventsCanPlay(event));
+        this.audioElement.addEventListener('canplay', event => this.props.dispatcher.playerAudioEventsCanplay(event));
     }
 
     render() {

@@ -17,33 +17,27 @@ export default class PlaylistStore {
         initEvents(when, this);
     }
 
-    @On('player.audio.ready')
-    playerAudioReady(audio: HTMLAudioElement) {
+    @On playerAudioReady(audio: HTMLAudioElement) {
         this.audioElement = audio;
     }
 
-    @On('player.action.pause')
-    pause() {
+    @On playerActionPause() {
         this.audioElement.pause();
     }
 
-    @On('player.audio.events.stalled')
-    setStalled() {
+    @On playerAudioEventsStalled() {
         this.stalled = true;
     }
 
-    @On('player.audio.events.canplay')
-    setCanPlay() {
+    @On playerAudioEventsCanplay() {
         this.stalled = false;
     }
 
-    @On('player.action.play')
-    play() {
+    @On playerActionPlay() {
         this.audioElement.play();
     }
 
-    @On('player.volume.set')
-    setVolume(volume: number) {
+    @On playerVolumeSet(volume: number) {
         this.audioElement.volume = volume;
     }
 }

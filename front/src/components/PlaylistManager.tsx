@@ -5,7 +5,7 @@ import stopClickPropagation from '../utils/stopClickPropagation';
 import ConfirmButton from './ConfirmButton';
 
 export interface IPlaylistManagerDispatcher {
-    playlistLoadPlaylist(name: string): void;
+    playlistLoadByName(name: string): void;
     playlistRemove(name: string): void;
 }
 
@@ -23,7 +23,7 @@ export default class PlaylistManager extends React.Component<IPlaylistManagerPro
                     {Object.keys(this.props.playlists).map(playlistName =>
                         <div key={playlistName}
                              className="list-group-item"
-                             onClick={() => this.props.dispatcher.playlistLoadPlaylist(playlistName)}>
+                             onClick={() => this.props.dispatcher.playlistLoadByName(playlistName)}>
                             <ButtonGroup>
                                 <ConfirmButton onClick={stopClickPropagation(() => this.props.dispatcher.playlistRemove(playlistName))}>
                                     <Glyphicon glyph="minus"/>

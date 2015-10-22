@@ -5,22 +5,20 @@ import Song from './models/Song';
 import SongInPlaylist from './models/SongInPlaylist';
 import DoubleLinkedListEntry from './utils/DoubleLinkedListEntry';
 import {RepeatModeEnum} from './components/RepeatMode';
+import {IPlaylistAndInfoDispatcher} from './components/PlaylistAndInfo';
+import {IMusicLibraryDispatcher} from './components/MusicLibrary';
+import {IMiniPlayerDispatcher} from './components/MiniPlayer';
+import {IAudioDispatcher} from './components/Audio';
 
 type FunctionWithOnEvent = Function & {__onEvent: string};
+type FunctionWithEmitEvent = Function & {__emitEvent: string};
 
-export interface IRegisterHandler {
-    (event: string, handler: IEventHandler): void;
-}
+export type IRegisterHandler = (event: string, handler: IEventHandler) => void;
+export type IEventHandler = (...args: any[]) => void;
 
-export interface IEventHandler {
-    (...args: any[]): void;
-}
-
-export function On(eventName: string): MethodDecorator {
-    return function (target: any, key: string | symbol, descriptor: TypedPropertyDescriptor<Object>) {
-        if (typeof target[key] === 'function') {
-            target[key].__onEvent = eventName;
-        }
+export function On(target: any, key: string, descriptor: TypedPropertyDescriptor<Object>) {
+    if (typeof target[key] === 'function') {
+        target[key].__onEvent = key;
     }
 }
 
@@ -35,131 +33,72 @@ export function initEvents(when: IRegisterHandler, that: Object) {
     }
 }
 
-export default class Dispatcher {
+export function Emit(target: any, key: string, descriptor: TypedPropertyDescriptor<Object>) {
+    if (typeof target[key] === 'function') {
+        target[key].__emitEvent = key;
+    }
+}
+
+export function initEmitEvents(emit: (eventName: string, ...args: any[]) => boolean, that: Object) {
+    const prototype = Object.getPrototypeOf(that);
+    for (let key in prototype) {
+        const method = prototype[key];
+        if (typeof method === 'function' && method.__emitEvent) {
+            (<any> that)[key] = (function (eventName: string) {
+                return (...args: any[]) => {
+                    console.log(`Event <${eventName}> on ${prototype.constructor.name}`);
+                    const value = emit(eventName, ...args);
+                    value || console.log(`Event NO HANDLERS: ${eventName}`);
+                    return value;
+                };
+            })(method.__emitEvent);
+            console.log(`Emitter <${method.__emitEvent}> on ${prototype.constructor.name}`);
+        }
+    }
+}
+
+export default class Dispatcher implements
+    IPlaylistAndInfoDispatcher,
+    IMusicLibraryDispatcher,
+    IMiniPlayerDispatcher,
+    IAudioDispatcher {
 
     private emitter = new EventEmitter();
+    on = (eventName: string, listener: Function) => this.emitter.on(eventName, listener);
+    emit = (eventName: string, ...args: any[]): boolean => {
+        this.render();
+        return this.emitter.emit(eventName, ...args);
+    }
 
     constructor(private render: Function) {
-
+        initEmitEvents(this.emit, this);
     }
 
-    on = (eventName: string, listener: Function) => {
-        return this.emitter.on(eventName, listener);
-    }
-
-    private emit(eventName: string, ...args: any[]): boolean {
-        console.log(`Event start: ${eventName}`);
-        const value = this.emitter.emit(eventName, ...args);
-        value || console.log(`Event NO HANDLERS: ${eventName}`);
-        this.render();
-        return value;
-    }
-
-    playlistPlayAfter(songs: Song[]): void {
-        this.emit('playlist.playAfter', songs);
-    }
-
-    playlistClearAndPlay(songs: Song[]): void {
-        this.emit('playlist.clearAndPlay', songs);
-    }
-
-    musiclibraryArtistSet(artist: Artist): void {
-        this.emit('musiclibrary.artist.set', artist);
-    }
-
-    musiclibraryAlbumSet(album: Album): void {
-        this.emit('musiclibrary.album.set', album);
-    }
-
-    playlistAppend(songs: Song[]): void {
-        this.emit('playlist.append', songs);
-    }
-
-    playlistEntryPlay(entry: DoubleLinkedListEntry<SongInPlaylist>): void {
-        this.emit('playlist.entry.play', entry);
-    }
-
-    playlistEntryRemove(entry: DoubleLinkedListEntry<SongInPlaylist>): void {
-        this.emit('playlist.entry.remove', entry);
-    }
-
-    playlistEntryMoveup(entry: DoubleLinkedListEntry<SongInPlaylist>): void {
-        this.emit('playlist.entry.moveup', entry);
-    }
-
-    playlistEntryMovedown(entry: DoubleLinkedListEntry<SongInPlaylist>): void {
-        this.emit('playlist.entry.movedown', entry);
-    }
-
-    playerAudioReady(audioElement: HTMLAudioElement): void {
-        this.emit('player.audio.ready', audioElement);
-    }
-
-    playlistGoNext(): void {
-        this.emit('playlist.go.next');
-    }
-
-    playlistGoPrev(): void {
-        this.emit('playlist.go.prev');
-    }
-
-    playlistGoFirst(): void {
-        this.emit('playlist.go.first');
-    }
-
-    playlistGoLast(): void {
-        this.emit('playlist.go.last');
-    }
-
-    playerEnded(): void {
-        this.emit('player.ended');
-    }
-
-    playerAudioEventsStalled(event: Event): void {
-        this.emit('player.audio.events.stalled', event);
-    }
-
-    playerAudioEventsError(event: Event): void {
-        this.emit('player.audio.events.error', event);
-    }
-
-    playlistRepeatSet(mode: RepeatModeEnum): void {
-        this.emit('playlist.repeat.set', mode);
-    }
-
-    playlistLoadPlaylist(name: string): void {
-        this.emit('playlist.load.byName', name);
-    }
-
-    playlistRemove(name: string): void {
-        this.emit('playlist.remove', name);
-    }
-
-    playlistSaveCurrent(name: string): void {
-        this.emit('playlist.save.current', name);
-    }
-
-    playlistClear(): void {
-        this.emit('playlist.clear');
-    }
-
-    playlistRandom(): void {
-        this.emit('playlist.random');
-    }
-
-    playerAudioEventsCanPlay(event: Event): void {
-        this.emit('player.audio.events.canplay');
-    }
-
-    playerActionPlay(): void {
-        this.emit('player.action.play');
-    }
-
-    playerActionPause(): void {
-        this.emit('player.action.pause');
-    }
-
-    playerVolumeSet(volume: number): void {
-        this.emit('player.volume.set', volume);
-    }
+    @Emit playlistPlayAfter(songs: Song[]): void { }
+    @Emit playlistClearAndPlay(songs: Song[]): void { }
+    @Emit musiclibraryArtistSet(artist: Artist): void { }
+    @Emit musiclibraryAlbumSet(album: Album): void { }
+    @Emit playlistAppend(songs: Song[]): void { }
+    @Emit playlistEntryPlay(entry: DoubleLinkedListEntry<SongInPlaylist>): void { }
+    @Emit playlistEntryRemove(entry: DoubleLinkedListEntry<SongInPlaylist>): void { }
+    @Emit playlistEntryMoveup(entry: DoubleLinkedListEntry<SongInPlaylist>): void { }
+    @Emit playlistEntryMovedown(entry: DoubleLinkedListEntry<SongInPlaylist>): void { }
+    @Emit playerAudioReady(audioElement: HTMLAudioElement): void { }
+    @Emit playlistGoNext(): void { }
+    @Emit playlistGoPrev(): void { }
+    @Emit playlistGoFirst(): void { }
+    @Emit playlistGoLast(): void { }
+    @Emit playerEnded(): void { }
+    @Emit playerAudioEventsStalled(event: Event): void { }
+    @Emit playerAudioEventsError(event: Event): void { }
+    @Emit playlistRepeatSet(mode: RepeatModeEnum): void { }
+    @Emit playlistLoadByName(name: string): void { }
+    @Emit playlistRemove(name: string): void { }
+    @Emit playlistSaveCurrent(name: string): void { }
+    @Emit playlistClear(): void { }
+    @Emit playlistRandom(): void { }
+    @Emit playerAudioEventsCanplay(event: Event): void { }
+    @Emit playerActionPlay(): void { }
+    @Emit playerActionPause(): void { }
+    @Emit playerVolumeSet(volume: number): void { }
 }
