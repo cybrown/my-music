@@ -3,8 +3,7 @@
 ## Install project for dev
 * Clone this repo
 * cd into the project's directory
-* Install npm dependencies `npm install`
-* Install bower dependencies `bower install`
+* Install all dependencies `npm run install-all`
 
 ## Create database
 * Copy music files to front/public/musics
