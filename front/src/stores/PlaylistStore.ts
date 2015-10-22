@@ -14,7 +14,6 @@ export default class PlaylistStore {
     currentEntry: DoubleLinkedListEntry<SongInPlaylist> = null;
     repeatMode: RepeatModeEnum = RepeatModeEnum.NONE;
     audioElement: HTMLAudioElement = null;
-    stalled = false;
     savedPlaylists: SavedPlaylists = newDict<string[]>();
 
     playEntry(playingEntry: DoubleLinkedListEntry<SongInPlaylist>) {
@@ -100,7 +99,7 @@ export default class PlaylistStore {
             this.savedPlaylists = JSON.parse(localStorage.getItem('savedPlaylists'));
         }
 
-        when('player.ended', () =>  this.onPlayerEnded());
+        when('player.ended', () => this.onPlayerEnded());
 
         when('player.audio.ready', (audio: HTMLAudioElement) => {
             this.audioElement = audio;
@@ -144,14 +143,12 @@ export default class PlaylistStore {
             this.playlist.moveNext(entry);
         });
 
-        when('player.repeat.set', (mode: RepeatModeEnum) => this.repeatMode = mode);
+        when('playlist.repeat.set', (mode: RepeatModeEnum) => this.repeatMode = mode);
 
-        when('player.go.first', () => this.playFirst());
-        when('player.go.prev', () => this.playPrev());
-        when('player.go.next', () => this.playNext());
-        when('player.go.last', () => this.playLast());
-
-        when('player.audio.events.stalled', () => this.stalled = true);
+        when('playlist.go.first', () => this.playFirst());
+        when('playlist.go.prev', () => this.playPrev());
+        when('playlist.go.next', () => this.playNext());
+        when('playlist.go.last', () => this.playLast());
 
         when('playlist.load.byName', (name: string) => {
             const songs = this.savedPlaylists[name].map(uuid => this.songs.filter(song => song.uuid === uuid)[0]);
@@ -176,22 +173,6 @@ export default class PlaylistStore {
 
         when('playlist.random', () => {
             this.playlist.randomize();
-        });
-
-        when('player.audio.events.canplay', () => {
-            this.stalled = false;
-        });
-
-        when('player.action.pause', () => {
-            this.audioElement.pause();
-        });
-
-        when('player.action.play', () => {
-            this.audioElement.play();
-        });
-
-        when('player.volume.set', (volume: number) => {
-            this.audioElement.volume = volume;
         });
     }
 }

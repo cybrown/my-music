@@ -81,20 +81,20 @@ export default class Dispatcher {
         this.emit('player.audio.ready', audioElement);
     }
 
-    playerGoNext(): void {
-        this.emit('player.go.next');
+    playlistGoNext(): void {
+        this.emit('playlist.go.next');
     }
 
-    playerGoPrev(): void {
-        this.emit('player.go.prev');
+    playlistGoPrev(): void {
+        this.emit('playlist.go.prev');
     }
 
-    playerGoFirst(): void {
-        this.emit('player.go.first');
+    playlistGoFirst(): void {
+        this.emit('playlist.go.first');
     }
 
-    playerGoLast(): void {
-        this.emit('player.go.last');
+    playlistGoLast(): void {
+        this.emit('playlist.go.last');
     }
 
     playerEnded(): void {
@@ -109,8 +109,8 @@ export default class Dispatcher {
         this.emit('player.audio.events.error', event);
     }
 
-    playerRepeatSet(mode: RepeatModeEnum): void {
-        this.emit('player.repeat.set', mode);
+    playlistRepeatSet(mode: RepeatModeEnum): void {
+        this.emit('playlist.repeat.set', mode);
     }
 
     playlistLoadPlaylist(name: string): void {

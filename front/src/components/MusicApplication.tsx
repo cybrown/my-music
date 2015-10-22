@@ -31,7 +31,8 @@ export default class MusicApplication extends React.Component<MusicApplicationPr
                     <MusicLibrary store={this.props.store.musicLibrary}
                                   dispatcher={this.props.dispatcher} />
                     <PlaylistAndInfo playlistStore={this.props.store.playlist}
-                                       dispatcher={this.props.dispatcher} />
+                                     playerStore={this.props.store.player}
+                                     dispatcher={this.props.dispatcher} />
                 </Grid>
             </div>
         );

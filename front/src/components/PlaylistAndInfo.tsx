@@ -7,6 +7,7 @@ import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
 import Song from '../models/Song';
 import {RepeatModeEnum, default as RepeatMode} from './RepeatMode';
 import PlaylistStore from '../stores/PlaylistStore';
+import PlayerStore from '../stores/PlayerStore';
 import {Row, Col} from 'react-bootstrap';
 import {default as PlaylistManager, IPlaylistManagerDispatcher} from './PlaylistManager';
 
@@ -16,6 +17,7 @@ export interface IPlaylistAndInfoDispatcher extends
 
 interface PlaylistAndInfoProps {
     playlistStore: PlaylistStore;
+    playerStore: PlayerStore;
     dispatcher: IPlaylistAndInfoDispatcher;
 }
 
@@ -34,7 +36,7 @@ export default class PlaylistAndInfo extends React.Component<PlaylistAndInfoProp
                 </Col>
                 <Col sm={6}>
                     <SongInfo song={this.props.playlistStore.song}
-                              stalled={this.props.playlistStore.stalled} />
+                              stalled={this.props.playerStore.stalled} />
                 </Col>
             </Row>
         );

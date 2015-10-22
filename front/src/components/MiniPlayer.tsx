@@ -6,11 +6,11 @@ import {default as RepeatMode, RepeatModeEnum} from './RepeatMode';
 export interface IMiniPlayerDispatcher {
     playerActionPlay(): void;
     playerActionPause(): void;
-    playerGoNext(): void;
-    playerGoPrev(): void;
-    playerGoFirst(): void;
-    playerGoLast(): void;
-    playerRepeatSet(mode: RepeatModeEnum): void;
+    playlistGoNext(): void;
+    playlistGoPrev(): void;
+    playlistGoFirst(): void;
+    playlistGoLast(): void;
+    playlistRepeatSet(mode: RepeatModeEnum): void;
     playerVolumeSet(volume: number): void;
 }
 
@@ -99,10 +99,10 @@ export default class MiniPlayer extends React.Component<IMiniPlayerProps, {}> {
         return (
             <div className="mini-player-component">
                 <ButtonGroup>
-                    <Button onClick={() => this.props.dispatcher.playerGoFirst()}>
+                    <Button onClick={() => this.props.dispatcher.playlistGoFirst()}>
                         <Glyphicon glyph="fast-backward" />
                     </Button>
-                    <Button onClick={() => this.props.dispatcher.playerGoPrev()}>
+                    <Button onClick={() => this.props.dispatcher.playlistGoPrev()}>
                         <Glyphicon glyph="step-backward" />
                     </Button>
                     {this.paused ?
@@ -112,15 +112,15 @@ export default class MiniPlayer extends React.Component<IMiniPlayerProps, {}> {
                         <Button onClick={this.pause}>
                             <Glyphicon glyph="pause" />
                         </Button>}
-                    <Button onClick={() => this.props.dispatcher.playerGoNext()}>
+                    <Button onClick={() => this.props.dispatcher.playlistGoNext()}>
                         <Glyphicon glyph="step-forward" />
                     </Button>
-                    <Button onClick={() => this.props.dispatcher.playerGoLast()}>
+                    <Button onClick={() => this.props.dispatcher.playlistGoLast()}>
                         <Glyphicon glyph="fast-forward" />
                     </Button>
                 </ButtonGroup>
                 <RepeatMode repeatMode={this.props.repeatMode}
-                    setRepeatMode={mode => this.props.dispatcher.playerRepeatSet(mode)} />
+                    setRepeatMode={mode => this.props.dispatcher.playlistRepeatSet(mode)} />
                 <div style={{position: 'relative'}}>
                     <span style={this.currentTimeLabelStyle}>{this.audioCurrentTimeMinute}</span>
                     <input style={this.currentTimeInputStyle}
