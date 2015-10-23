@@ -4,14 +4,15 @@
 * Clone this repo
 * cd into the project's directory
 * Install all dependencies `npm run install-all`
+* Run `npm run front-watch` to run compile watchers and web server (port 8080)
 
 ## Create database
 * Copy music files to front/public/musics
 * Run `node meta.js` (mp3 and m4a only files are scanned)
-* Verify the data.json file
+* Verify the front/public/data.json file
 
-## Build javascript
-* Run `npm run build`
+## Build project without watchers
+* Run `npm run front-build`
 
 ## Install project on server
 * Copy all the front/public directory to a static file server (apache, nginx, even dropbox...)
