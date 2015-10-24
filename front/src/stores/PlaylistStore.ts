@@ -16,8 +16,8 @@ export default class PlaylistStore {
     audioElement: HTMLAudioElement = null;
     savedPlaylists: SavedPlaylists = newDict<string[]>();
 
-    constructor (private when: IRegisterHandler, private songs: Song[]) {
-        initEvents(when, this);
+    constructor (private on: IRegisterHandler, private songs: Song[]) {
+        initEvents(on, this);
         if (localStorage.getItem('savedPlaylists')) {
             this.savedPlaylists = JSON.parse(localStorage.getItem('savedPlaylists'));
         }
