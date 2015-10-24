@@ -50,9 +50,18 @@ function bootstrapApp() {
 
     function doRender() {
         render(<MusicApplication store={applicationStore}
-                                dispatcher={dispatcher} />,
+                                 dispatcher={dispatcher} />,
             document.getElementById("react-main"));
     }
     applicationStore.musicLibrary.artists = toArray(artists);
+
+    const originalSetTimeout = window.setTimeout;
+    window.setTimeout = function (handler: any, timeout?: any, ...args: any[]): number {
+        return originalSetTimeout((...args: any[]) => {
+            handler(...args);
+            doRender();
+        }, timeout, ...args);
+    }
+
     doRender();
 }

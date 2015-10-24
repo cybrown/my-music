@@ -7,7 +7,7 @@ export interface IMiniPlayerDispatcher {
     playerActionPlay(): void;
     playerActionPause(): void;
     playlistGoNext(): void;
-    playlistGoPrev(): void;
+    playlistGoPrev(currentTime: number): void;
     playlistGoFirst(): void;
     playlistGoLast(): void;
     playlistRepeatSet(mode: RepeatModeEnum): void;
@@ -102,7 +102,7 @@ export default class MiniPlayer extends React.Component<IMiniPlayerProps, {}> {
                     <Button onClick={() => this.props.dispatcher.playlistGoFirst()}>
                         <Glyphicon glyph="fast-backward" />
                     </Button>
-                    <Button onClick={() => this.props.dispatcher.playlistGoPrev()}>
+                    <Button onClick={() => this.props.dispatcher.playlistGoPrev(this.audioCurrentTime)}>
                         <Glyphicon glyph="step-backward" />
                     </Button>
                     {this.paused ?

@@ -22,7 +22,7 @@ export default class MusicNavigation extends React.Component<MusicNavigationProp
                 <Nav right>
                     <MiniPlayer dispatcher={this.props.dispatcher}
                                 song={this.props.store.playlist.song}
-                                audioElement={this.props.store.playlist.audioElement}
+                                audioElement={this.props.store.player.audioElement}
                                 repeatMode={this.props.store.playlist.repeatMode} />
                 </Nav>
                 <Nav right>

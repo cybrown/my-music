@@ -13,7 +13,6 @@ export default class PlaylistStore {
     song: Song = null;
     currentEntry: DoubleLinkedListEntry<SongInPlaylist> = null;
     repeatMode: RepeatModeEnum = RepeatModeEnum.NONE;
-    audioElement: HTMLAudioElement = null;
     savedPlaylists: SavedPlaylists = newDict<string[]>();
 
     constructor (private on: IRegisterHandler, private songs: Song[]) {
@@ -41,9 +40,9 @@ export default class PlaylistStore {
         }
     }
 
-    @On private playlistGoPrev() {
+    @On private playlistGoPrev(currentTime: number) {
         if (this.currentEntry) {
-            if ((this.audioElement && this.audioElement.currentTime >= 3)) {
+            if (currentTime >= 3) {
                 this.playEntry(this.currentEntry);
             } else if (this.currentEntry.isFirst && this.repeatMode === RepeatModeEnum.NONE) {
                 this.playEntry(this.currentEntry);
@@ -94,10 +93,6 @@ export default class PlaylistStore {
         this.playlist.remove(entry);
     }
 
-    @On private playerAudioReady(audio: HTMLAudioElement) {
-        this.audioElement = audio;
-    }
-
     @On private playlistClearAndPlay(songs: Song[]) {
         this.playlist.clear();
         this.playlistPlayAfter(songs);
@@ -145,18 +140,20 @@ export default class PlaylistStore {
     }
 
     private forcePlayerRestart() {
-        if (this.audioElement) {
-            this.audioElement.currentTime = 0;
-            this.audioElement.play();
-        }
+        const song = this.song;
+        this.song = null;
+        setTimeout(() => this.song = song);
     }
 
     private playEntry(playingEntry: DoubleLinkedListEntry<SongInPlaylist>) {
         this.playlist.map(entry => entry.value.isPlaying = false);
         playingEntry.value.isPlaying = true;
         this.currentEntry = playingEntry;
-        this.song = playingEntry.value.song;
-        this.forcePlayerRestart();
+        if (this.song === playingEntry.value.song) {
+            this.forcePlayerRestart();
+        } else {
+            this.song = playingEntry.value.song;
+        }
     }
 
     private playNone() {
