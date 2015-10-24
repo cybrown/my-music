@@ -20,20 +20,20 @@ export default class MusicLibrarySongList extends React.Component<MusicLibrarySo
         <div>
             <ButtonGroup>
                 <span className="btn btn-default"
-                        onClick={stopClickPropagation(() => this.props.playNow(song))}>
+                      onClick={stopClickPropagation(() => this.props.playNext(song))}>
                     <Glyphicon glyph="play"/>
                 </span>
                 <span className="btn btn-default"
-                        onClick={stopClickPropagation(() => this.props.playOneNow(song))}>
+                      onClick={stopClickPropagation(() => this.props.playOneNow(song))}>
                     <Glyphicon glyph="play"/>1
                 </span>
                 <span className="btn btn-default"
-                        onClick={stopClickPropagation(() => this.props.playNext(song))}>
+                      onClick={stopClickPropagation(() => this.props.playNext(song))}>
                     <Glyphicon glyph="play"/>
                     <Glyphicon glyph="plus"/>
                 </span>
                 <span className="btn btn-default"
-                        onClick={stopClickPropagation(() => this.props.playLast(song))}>
+                      onClick={stopClickPropagation(() => this.props.playLast(song))}>
                     <Glyphicon glyph="plus"/>
                 </span>
             </ButtonGroup>
@@ -44,10 +44,10 @@ export default class MusicLibrarySongList extends React.Component<MusicLibrarySo
     render() {
         return (
             <ListViewSong activeItem={null}
-                      header="Songs"
-                      items={this.props.songs}
-                      keyFor={song => song.uuid}
-                      toElement={this.toElement} />
+                          header="Songs"
+                          items={this.props.songs}
+                          keyFor={song => song.uuid}
+                          toElement={this.toElement} />
         );
     }
 }
