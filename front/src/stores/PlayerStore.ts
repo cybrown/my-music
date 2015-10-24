@@ -7,9 +7,8 @@ import {RepeatModeEnum} from '../components/RepeatMode';
 import {SavedPlaylists} from '../models/SavedPlaylists';
 import {newDict} from '../utils/Dict';
 
-export default class PlaylistStore {
+export default class PlayerStore {
 
-    //song: Song = null;
     audioElement: HTMLAudioElement = null;
     stalled = false;
 
