@@ -40,7 +40,7 @@ export default class MusicLibraryAlbumList extends React.Component<MusicLibraryA
         if (this.props.albums.length <= 1) {
             return this.props.albums;
         }
-        const allAlbums = this.props.albums;
+        const allAlbums = this.props.albums.sort((a1, a2) => a1.name.localeCompare(a2.name));
         return [{
             name: '* All *',
             songs: _.flatten(allAlbums.map(a => a.songs))
