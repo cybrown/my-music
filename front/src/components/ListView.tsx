@@ -27,7 +27,7 @@ export default class ListView<T> extends React.Component<IListViewProps<T>, {}> 
                 {this.props.items.length > 0 ?
                     <ListGroup>
                         {this.props.items.map(item =>
-                            <a className={'list-group-item ' + (this.props.activeItem === item ? 'active' : '')}
+                            <a className={'list-group-item ' + (this.isActive(item) ? 'active' : '')}
                                style={this.props.onClick ? {cursor: 'pointer'} : null}
                                key={this.props.keyFor(item)}
                                onClick={this.props.onClick && (() => this.props.onClick(item))}>
