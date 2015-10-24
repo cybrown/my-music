@@ -70,6 +70,12 @@ export default class PlaylistStore {
         }
     }
 
+    @On private playerAudioEventsError() {
+        if (this.repeatMode !== RepeatModeEnum.ONE) {
+            this.playerEnded();
+        }
+    }
+
     @On private playerEnded() {
         if (this.repeatMode === RepeatModeEnum.ONE) {
             this.playEntry(this.currentEntry);
