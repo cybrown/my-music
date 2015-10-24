@@ -3,6 +3,7 @@ import Album from '../models/Album';
 import {Panel, ListGroup, ListGroupItem, ButtonGroup, Glyphicon, Button} from 'react-bootstrap';
 import stop from '../utils/stopClickPropagation';
 import ListView from './ListView';
+import * as _ from 'lodash';
 
 class ListViewAlbum extends ListView<Album> {}
 
@@ -35,10 +36,21 @@ export default class MusicLibraryAlbumList extends React.Component<MusicLibraryA
         </div>
     );
 
+    getAllAlbums(): Album[] {
+        if (this.props.albums.length <= 1) {
+            return this.props.albums;
+        }
+        const allAlbums = this.props.albums;
+        return [{
+            name: '* All *',
+            songs: _.flatten(allAlbums.map(a => a.songs))
+        }].concat(allAlbums);
+    }
+
     render() {
         return (
             <ListViewAlbum activeItem={this.props.album}
-                           items={this.props.albums.sort((a1, a2) => a1.name.localeCompare(a2.name))}
+                           items={this.getAllAlbums()}
                            onClick={this.props.setCurrentAlbum}
                            toElement={this.toElement}
                            keyFor={album => album.name}
