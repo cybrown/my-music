@@ -3,6 +3,9 @@ import {SavedPlaylists} from '../models/SavedPlaylists';
 import {Panel, ListGroup, ListGroupItem, ButtonGroup, Button, Glyphicon} from 'react-bootstrap';
 import stopClickPropagation from '../utils/stopClickPropagation';
 import ConfirmButton from './ConfirmButton';
+import ListView from './ListView';
+
+class ListViewStringArray extends ListView<string> {}
 
 export interface IPlaylistManagerDispatcher {
     playlistLoadByName(name: string): void;
@@ -16,23 +19,26 @@ interface IPlaylistManagerProps {
 
 export default class PlaylistManager extends React.Component<IPlaylistManagerProps, {}> {
 
+    toElement = (playlistName: string) => (
+        <div>
+            <ButtonGroup>
+                <ConfirmButton onClick={stopClickPropagation(() => this.props.dispatcher.playlistRemove(playlistName))}>
+                    <Glyphicon glyph="minus"/>
+                </ConfirmButton>
+            </ButtonGroup>
+            {playlistName}
+        </div>
+    );
+
     render() {
         return (
-            <Panel header="Saved Playlists">
-                <div className="list-group">
-                    {Object.keys(this.props.playlists).map(playlistName =>
-                        <div key={playlistName}
-                             className="list-group-item"
-                             onClick={() => this.props.dispatcher.playlistLoadByName(playlistName)}>
-                            <ButtonGroup>
-                                <ConfirmButton onClick={stopClickPropagation(() => this.props.dispatcher.playlistRemove(playlistName))}>
-                                    <Glyphicon glyph="minus"/>
-                                </ConfirmButton>
-                            </ButtonGroup>
-                            {playlistName}
-                        </div>)}
-                </div>
-            </Panel>
+            <ListViewStringArray activeItem={null}
+                                 header="Saved Playlists"
+                                 items={Object.keys(this.props.playlists) as string[]}
+                                 keyFor={x => x}
+                                 toElement={this.toElement}
+                                 onClick={playlistName => this.props.dispatcher.playlistLoadByName(playlistName)}>
+            </ListViewStringArray>
         );
     }
 }

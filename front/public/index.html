@@ -13,14 +13,25 @@
                 height: 100%;
                 margin-bottom: 0;
                 position: relative;
+                border-radius: 0;
             }
             .panel-body {
                 position: absolute;
                 top: 41px;
                 left: 0;
                 right: 0;
-                bottom: 0;
+                bottom: 45px;
                 padding: 0;
+            }
+            .panel-heading {
+                border-radius: 0;
+            }
+            .panel-footer {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                border-radius: 0;
             }
             .panel-body > .list-group {
                 position: absolute;
@@ -29,6 +40,14 @@
                 right: 0;
                 bottom: 0;
                 overflow: auto;
+            }
+            .panel-body .list-group-item {
+                border-left: none;
+                border-right: none;
+                border-radius: 0;
+            }
+            .panel-body .list-group-item:first-child {
+                border-top: none;
             }
             .container-fluid > .row {
                 height: 50%;

@@ -6,6 +6,7 @@ import DoubleLinkedListEntry from '../utils/DoubleLinkedListEntry';
 import stopClickPropagation from '../utils/stopClickPropagation';
 import {Panel, ListGroup, ListGroupItem, ButtonGroup, Button, Glyphicon, Modal} from 'react-bootstrap';
 import ConfirmButton from './ConfirmButton';
+import ListView from './ListView';
 
 export interface IPlaylistDispatcher {
     playlistEntryPlay(entry: DoubleLinkedListEntry<SongInPlaylist>): void;
@@ -26,6 +27,8 @@ interface PlaylistState {
     showModal?: boolean;
 }
 
+class ListViewPlaylist extends ListView<DoubleLinkedListEntry<SongInPlaylist>> {};
+
 export default class Playlist extends React.Component<PlaylistProps, PlaylistState> {
 
     nameInput: HTMLInputElement;
@@ -34,92 +37,94 @@ export default class Playlist extends React.Component<PlaylistProps, PlaylistSta
         showModal: false
     };
 
-    showModal() {
+    showModal = () => {
+        console.log(this.state);
         this.setState({
             showModal: true
         });
     }
 
-    savePlaylist() {
+    savePlaylist = () => {
         this.props.dispatcher.playlistSaveCurrent(this.nameInput.value);
         this.setState({
             showModal: false
         });
     }
 
-    onHideDialog() {
+    onHideDialog = () => {
         this.setState({
             showModal: false
         });
     }
 
-    render() {
-        const headerContent = (
-            <div>
-                Playlist
-                <span className="pull-right">
-                    <ButtonGroup>
-                        <Button onClick={() => this.showModal()}>
-                            <Glyphicon glyph="floppy-disk" />
-                        </Button>
-                        <ConfirmButton onClick={() => this.props.dispatcher.playlistClear()}>
-                            <Glyphicon glyph="remove" />
-                        </ConfirmButton>
-                        <Button onClick={() => this.props.dispatcher.playlistRandom()}>
-                            <Glyphicon glyph="random" />
-                        </Button>
-                    </ButtonGroup>
+    toElement = (entry: DoubleLinkedListEntry<SongInPlaylist>) => (
+        <div>
+            <ButtonGroup>
+                <span className="btn btn-default"
+                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryRemove(entry))}>
+                    <Glyphicon glyph="minus"/>
                 </span>
-            </div>
-        );
-        return (
-            <Panel header={headerContent}>
-                <Modal show={this.state.showModal} onHide={() => this.onHideDialog()}>
-                    <Modal.Header closeButton={true}>
-                        <Modal.Title>Playlist Name</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <form onSubmit={(event) => {this.savePlaylist(); event.preventDefault();}}>
-                            <input className="form-control"
-                                   autoFocus={true}
-                                   ref={nameInput => this.nameInput = nameInput as any}
-                                   type="text" />
-                            <button style={{display: 'none'}}></button>
-                        </form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button bsStyle="primary"
-                                onClick={() => this.savePlaylist()}>
-                            Save playlist
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
-                <ButtonGroup>
+                <span className="btn btn-default"
+                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryMoveup(entry))}>
+                    <Glyphicon glyph="arrow-up"/>
+                </span>
+                <span className="btn btn-default"
+                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryMovedown(entry))}>
+                    <Glyphicon glyph="arrow-down"/>
+                </span>
+            </ButtonGroup>
+            <span>{entry.value.song.title}</span>
+        </div>
+    );
 
+    headerContent = () => (
+        <div>
+            Playlist
+            <span className="pull-right">
+                <ButtonGroup>
+                    <Button onClick={() => this.showModal()}>
+                        <Glyphicon glyph="floppy-disk" />
+                    </Button>
+                    <ConfirmButton onClick={() => this.props.dispatcher.playlistClear()}>
+                        <Glyphicon glyph="remove" />
+                    </ConfirmButton>
+                    <Button onClick={() => this.props.dispatcher.playlistRandom()}>
+                        <Glyphicon glyph="random" />
+                    </Button>
                 </ButtonGroup>
-                <ListGroup>
-                    {this.props.playlist.map(entry =>
-                        <ListGroupItem key={entry.uuid}
-                                       onClick={() => this.props.dispatcher.playlistEntryPlay(entry)}
-                                       className={entry.value.isPlaying ? 'active' : null}>
-                            <ButtonGroup>
-                                <span className="btn btn-default"
-                                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryRemove(entry))}>
-                                    <Glyphicon glyph="minus"/>
-                                </span>
-                                <span className="btn btn-default"
-                                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryMoveup(entry))}>
-                                    <Glyphicon glyph="arrow-up"/>
-                                </span>
-                                <span className="btn btn-default"
-                                      onClick={stopClickPropagation(event => this.props.dispatcher.playlistEntryMovedown(entry))}>
-                                    <Glyphicon glyph="arrow-down"/>
-                                </span>
-                            </ButtonGroup>
-                            <span>{entry.value.song.title}</span>
-                        </ListGroupItem>)}
-                </ListGroup>
-            </Panel>
+            </span>
+            <Modal show={this.state.showModal}
+                   onHide={() => this.onHideDialog()}>
+                <Modal.Header closeButton={true}>
+                    <Modal.Title>Playlist Name</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form onSubmit={(event) => {this.savePlaylist(); event.preventDefault();}}>
+                        <input className="form-control"
+                               autoFocus={true}
+                               ref={nameInput => this.nameInput = nameInput as any}
+                               type="text" />
+                        <button style={{display: 'none'}}></button>
+                    </form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button bsStyle="primary"
+                            onClick={() => this.savePlaylist()}>
+                        Save playlist
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </div>
+    );
+
+    render() {
+        return (
+            <ListViewPlaylist activeItem={s => s.value.isPlaying}
+                              header={this.headerContent()}
+                              items={this.props.playlist.map(x => x)}
+                              toElement={this.toElement}
+                              keyFor={e => e.value.song.uuid}
+                              onClick={entry => this.props.dispatcher.playlistEntryPlay(entry)} />
         );
     }
 }
