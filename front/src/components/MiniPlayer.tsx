@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Song from '../models/song';
-import {ButtonGroup, Button, Glyphicon, ProgressBar} from 'react-bootstrap';
+import {ButtonGroup, Button, Glyphicon, ProgressBar, ButtonToolbar} from 'react-bootstrap';
 import {default as RepeatMode, RepeatModeEnum} from './RepeatMode';
 
 export interface IMiniPlayerDispatcher {
@@ -98,29 +98,31 @@ export default class MiniPlayer extends React.Component<IMiniPlayerProps, {}> {
     render() {
         return (
             <div className="mini-player-component">
-                <ButtonGroup>
-                    <Button onClick={() => this.props.dispatcher.playlistGoFirst()}>
-                        <Glyphicon glyph="fast-backward" />
-                    </Button>
-                    <Button onClick={() => this.props.dispatcher.playlistGoPrev(this.audioCurrentTime)}>
-                        <Glyphicon glyph="step-backward" />
-                    </Button>
-                    {this.paused ?
-                        <Button onClick={this.play}>
-                            <Glyphicon glyph="play" />
-                        </Button> :
-                        <Button onClick={this.pause}>
-                            <Glyphicon glyph="pause" />
-                        </Button>}
-                    <Button onClick={() => this.props.dispatcher.playlistGoNext()}>
-                        <Glyphicon glyph="step-forward" />
-                    </Button>
-                    <Button onClick={() => this.props.dispatcher.playlistGoLast()}>
-                        <Glyphicon glyph="fast-forward" />
-                    </Button>
-                </ButtonGroup>
-                <RepeatMode repeatMode={this.props.repeatMode}
-                    setRepeatMode={mode => this.props.dispatcher.playlistRepeatSet(mode)} />
+                <ButtonToolbar>
+                    <ButtonGroup>
+                        <Button onClick={() => this.props.dispatcher.playlistGoFirst()}>
+                            <Glyphicon glyph="fast-backward" />
+                        </Button>
+                        <Button onClick={() => this.props.dispatcher.playlistGoPrev(this.audioCurrentTime)}>
+                            <Glyphicon glyph="step-backward" />
+                        </Button>
+                        {this.paused ?
+                            <Button onClick={this.play}>
+                                <Glyphicon glyph="play" />
+                            </Button> :
+                            <Button onClick={this.pause}>
+                                <Glyphicon glyph="pause" />
+                            </Button>}
+                        <Button onClick={() => this.props.dispatcher.playlistGoNext()}>
+                            <Glyphicon glyph="step-forward" />
+                        </Button>
+                        <Button onClick={() => this.props.dispatcher.playlistGoLast()}>
+                            <Glyphicon glyph="fast-forward" />
+                        </Button>
+                    </ButtonGroup>
+                    <RepeatMode repeatMode={this.props.repeatMode}
+                        setRepeatMode={mode => this.props.dispatcher.playlistRepeatSet(mode)} />
+                </ButtonToolbar>
                 <div style={{position: 'relative'}}>
                     <span style={this.currentTimeLabelStyle}>{this.audioCurrentTimeMinute}</span>
                     <input style={this.currentTimeInputStyle}
