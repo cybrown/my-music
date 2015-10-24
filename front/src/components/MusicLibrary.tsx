@@ -14,6 +14,7 @@ export interface IMusicLibraryDispatcher {
     musiclibraryArtistSet(artist: Artist): void;
     musiclibraryAlbumSet(album: Album): void;
     playlistAppend(songs: Song[]): void;
+    playlistClear(): void;
 }
 
 interface MusicLibraryProps {
@@ -41,7 +42,8 @@ export default class MusicLibrary extends React.Component<MusicLibraryProps, {}>
         const index = songs.indexOf(song);
         const firstPart = songs.slice(0, index);
         const lastPart = songs.slice(index + 1, songs.length);
-        this.props.dispatcher.playlistClearAndPlay(firstPart);
+        this.props.dispatcher.playlistClear();
+        this.props.dispatcher.playlistAppend(firstPart);
         this.props.dispatcher.playlistPlayAfter([song]);
         this.props.dispatcher.playlistAppend(lastPart);
     }

@@ -20,7 +20,7 @@ export default class MusicLibrarySongList extends React.Component<MusicLibrarySo
         <div>
             <ButtonGroup>
                 <span className="btn btn-default"
-                      onClick={stopClickPropagation(() => this.props.playNext(song))}>
+                      onClick={stopClickPropagation(() => this.props.playNow(song))}>
                     <Glyphicon glyph="play"/>
                 </span>
                 <span className="btn btn-default"

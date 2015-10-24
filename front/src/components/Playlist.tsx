@@ -123,7 +123,7 @@ export default class Playlist extends React.Component<PlaylistProps, PlaylistSta
                               header={this.headerContent()}
                               items={this.props.playlist.map(x => x)}
                               toElement={this.toElement}
-                              keyFor={e => e.value.song.uuid}
+                              keyFor={e => e.uuid}
                               onClick={entry => this.props.dispatcher.playlistEntryPlay(entry)} />
         );
     }
