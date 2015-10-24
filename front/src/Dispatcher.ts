@@ -66,8 +66,9 @@ export default class Dispatcher implements
     private emitter = new EventEmitter();
     on = (eventName: string, listener: Function) => this.emitter.on(eventName, listener);
     emit = (eventName: string, ...args: any[]): boolean => {
+        const eventReturnValue = this.emitter.emit(eventName, ...args);
         this.render();
-        return this.emitter.emit(eventName, ...args);
+        return eventReturnValue;
     }
 
     constructor(private render: Function) {
