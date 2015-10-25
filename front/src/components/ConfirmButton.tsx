@@ -1,43 +1,42 @@
 import * as React from 'react';
-import {Button} from 'react-bootstrap';
+import {Button, ButtonProps} from 'react-bootstrap';
 
-interface IConfirmButtonProps {
-    onClick: Function;
+interface IConfirmButtonProps extends ButtonProps {
     children?: any;
 }
 
 interface IConfirmButtonState {
-    showRealButton?: boolean;
+    doRealAction?: boolean;
 }
 
 export default class ConfirmButton extends React.Component<IConfirmButtonProps, IConfirmButtonState> {
 
     state: IConfirmButtonState = {
-        showRealButton: false
+        doRealAction: false
     };
 
-    showConfirm(event: MouseEvent) {
-        this.setState({
-            showRealButton: true
-        });
-        setTimeout(() => {
-            this.setState({
-                showRealButton: false
-            });
-        }, 1000);
-        event.stopPropagation();
+    onClickWrapper = (event: MouseEvent) => {
+        if (!this.state.doRealAction) {
+            this.setState({ doRealAction: true });
+            setTimeout(() => this.setState({ doRealAction: false }), 1000);
+            event.stopPropagation();
+        } else {
+            this.setState({ doRealAction: false });
+            return this.props.onClick(event);
+        }
+    };
+
+    bsStyle() {
+        return this.state.doRealAction ? 'danger' : this.props.bsStyle;
     }
 
     render() {
         return (
-            this.state.showRealButton ?
-                <Button bsStyle="danger"
-                        onClick={this.props.onClick}>
-                    {this.props.children}
-                </Button> :
-                <Button onClick={(event: MouseEvent) => this.showConfirm(event)}>
-                    {this.props.children}
-                </Button>
+            <Button {...this.props}
+                    bsStyle={this.bsStyle()}
+                    onClick={this.onClickWrapper}>
+                {this.props.children}
+            </Button>
         );
     }
 }
