@@ -8,11 +8,14 @@
 
 ## Create database
 * Copy music files to front/public/musics
-* Run `node meta.js` (mp3 and m4a only files are scanned)
+* Run `npm run update-library` (mp3 and m4a only files are scanned)
 * Verify the front/public/data.json file
 
-## Build project without watchers
-* Run `npm run front-build`
+## Build project for dev without watchers
+* Run `npm run front-build-dev`
+
+## Build project for production
+* Run `npm run front-build-prod`
 
 ## Install project on server
 * Copy all the front/public directory to a static file server (apache, nginx, even dropbox...)

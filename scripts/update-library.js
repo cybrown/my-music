@@ -2,8 +2,10 @@ var glob = require('glob');
 var fs = require('fs');
 var mm = require('musicmetadata');
 var uuid = require('uuid');
+var path = require('path');
 
-var dataFilePath = './front/public/data.json';
+var publicPath = path.normalize(__dirname + '/../front/public');
+var dataFilePath = publicPath + '/data.json';
 
 var results = [];
 try {
@@ -12,12 +14,13 @@ try {
 
 }
 
-glob('./front/public/musics/**/*.@(mp3|m4a)', function (err, files) {
+glob(publicPath + '/musics/**/*.@(mp3|m4a)', function (err, files) {
     var total = 0;
     var current = 0;
     files.forEach(function (file) {
         console.log(file);
-        var musicId = file.match('./front/public/musics/(.*)')[1];
+        console.log(publicPath + '/musics/(.*)');
+        var musicId = file.match(publicPath + '/musics/(.*)')[1];
         var idExists = results.filter(function (result) {
             return result.musicId === musicId;
         }).length > 0;
