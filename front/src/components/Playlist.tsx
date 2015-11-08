@@ -82,13 +82,13 @@ export default class Playlist extends React.Component<PlaylistProps, PlaylistSta
             Playlist
             <span className="pull-right">
                 <ButtonGroup>
-                    <Button onClick={() => this.showModal()}>
+                    <Button onClick={stopClickPropagation(() => this.showModal())}>
                         <Glyphicon glyph="floppy-disk" />
                     </Button>
-                    <ConfirmButton onClick={() => this.props.dispatcher.playlistClear()}>
+                    <ConfirmButton onClick={stopClickPropagation(() => this.props.dispatcher.playlistClear())}>
                         <Glyphicon glyph="remove" />
                     </ConfirmButton>
-                    <Button onClick={() => this.props.dispatcher.playlistRandom()}>
+                    <Button onClick={stopClickPropagation(() => this.props.dispatcher.playlistRandom())}>
                         <Glyphicon glyph="random" />
                     </Button>
                 </ButtonGroup>
