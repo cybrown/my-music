@@ -11,24 +11,21 @@ interface MusicNavigationProps {
     dispatcher: IMusicNavigationDispatcher;
 }
 
-export default class MusicNavigation extends React.Component<MusicNavigationProps, {}> {
-
-    render() {
-        return (
-            <Navbar inverse staticTop>
-                <NavBrand>
-                    Music
-                </NavBrand>
-                <Nav right>
-                    <MiniPlayer dispatcher={this.props.dispatcher}
-                                song={this.props.store.playlist.song}
-                                audioElement={this.props.store.player.audioElement}
-                                repeatMode={this.props.store.playlist.repeatMode} />
-                </Nav>
-                <Nav right>
-                    <NavItem>{this.props.store.playlist.song ? `${this.props.store.playlist.song.artist} - ${this.props.store.playlist.song.album} - [${this.props.store.playlist.song.track}] - ${this.props.store.playlist.song.title}` : null}</NavItem>
-                </Nav>
-            </Navbar>
-        );
-    }
+export default function MusicNavigation(props: MusicNavigationProps) {
+    return (
+        <Navbar inverse staticTop>
+            <NavBrand>
+                Music
+            </NavBrand>
+            <Nav right>
+                <MiniPlayer dispatcher={props.dispatcher}
+                            song={props.store.playlist.song}
+                            audioElement={props.store.player.audioElement}
+                            repeatMode={props.store.playlist.repeatMode} />
+            </Nav>
+            <Nav right>
+                <NavItem>{props.store.playlist.song ? `${props.store.playlist.song.artist} - ${props.store.playlist.song.album} - [${props.store.playlist.song.track}] - ${props.store.playlist.song.title}` : null}</NavItem>
+            </Nav>
+        </Navbar>
+    );
 }

@@ -10,30 +10,33 @@ interface SongInfoProps {
     stalled: boolean;
 }
 
-export default class SongInfo extends React.Component<SongInfoProps, {}> {
-
-    render() {
-        return (
-            <Panel header="Song info">
-                {this.props.song &&
-                    <div>
-                        <div>Artist: {this.props.song.artist}</div>
-                        <div>Album: {this.props.song.album}</div>
-                        <div>Song title: {this.props.song.title}</div>
-                        <div>Song track: {this.props.song.track}</div>
-                        <div>Song uuid: {this.props.song.uuid}</div>
-                        <div>
-                            <a href={`https://www.google.com/search?q=lyrics+${this.props.song.artist}+${this.props.song.title}`}
-                            target="_blank">
-                                Lyrics
-                            </a>
-                        </div>
-                    </div>}
+export default function SongInfo(props: SongInfoProps) {
+    return (
+        <Panel header="Song info">
+            {props.song &&
                 <div>
-                    {this.props.stalled &&
-                        <Label bsStyle="warning">Stalled</Label>}
-                </div>
-            </Panel>
-        );
-    }
+                    <div>Artist: {props.song.artist}</div>
+                    <div>Album: {props.song.album}</div>
+                    <div>Song title: {props.song.title}</div>
+                    <div>Song track: {props.song.track}</div>
+                    <div>Song uuid: {props.song.uuid}</div>
+                    <div>
+                        <a href={`https://www.google.com/search?q=lyrics+${props.song.artist}+${props.song.title}`}
+                        target="_blank">
+                            Lyrics
+                        </a>
+                    </div>
+                    <div>
+                        <a href={`https://www.google.com/search?q=bass+tab+${props.song.artist}+${props.song.title}`}
+                        target="_blank">
+                            Bass Tab
+                        </a>
+                    </div>
+                </div>}
+            <div>
+                {props.stalled &&
+                    <Label bsStyle="warning">Stalled</Label>}
+            </div>
+        </Panel>
+    );
 }

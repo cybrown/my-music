@@ -6,26 +6,23 @@ interface RepeatModeProps {
     setRepeatMode: (mode: RepeatModeEnum) => void;
 }
 
-export default class RepeatMode extends React.Component<RepeatModeProps, {}> {
-
-    render() {
-        return (
-            <ButtonGroup>
-                <Button bsStyle={this.props.repeatMode === RepeatModeEnum.NONE ? 'primary' : 'default'}
-                        onClick={() => this.props.setRepeatMode(RepeatModeEnum.NONE)}>
-                    <Glyphicon glyph="arrow-right" />
-                </Button>
-                <Button bsStyle={this.props.repeatMode === RepeatModeEnum.ONE ? 'primary' : 'default'}
-                        onClick={() => this.props.setRepeatMode(RepeatModeEnum.ONE)}>
-                    <Glyphicon glyph="repeat" />1
-                </Button>
-                <Button bsStyle={this.props.repeatMode === RepeatModeEnum.ALL ? 'primary' : 'default'}
-                        onClick={() => this.props.setRepeatMode(RepeatModeEnum.ALL)}>
-                    <Glyphicon glyph="repeat" />
-                </Button>
-            </ButtonGroup>
-        );
-    }
+export default function RepeatMode(props: RepeatModeProps) {
+    return (
+        <ButtonGroup>
+            <Button bsStyle={props.repeatMode === RepeatModeEnum.NONE ? 'primary' : 'default'}
+                    onClick={() => props.setRepeatMode(RepeatModeEnum.NONE)}>
+                <Glyphicon glyph="arrow-right" />
+            </Button>
+            <Button bsStyle={props.repeatMode === RepeatModeEnum.ONE ? 'primary' : 'default'}
+                    onClick={() => props.setRepeatMode(RepeatModeEnum.ONE)}>
+                <Glyphicon glyph="repeat" />1
+            </Button>
+            <Button bsStyle={props.repeatMode === RepeatModeEnum.ALL ? 'primary' : 'default'}
+                    onClick={() => props.setRepeatMode(RepeatModeEnum.ALL)}>
+                <Glyphicon glyph="repeat" />
+            </Button>
+        </ButtonGroup>
+    );
 }
 
 export enum RepeatModeEnum {

@@ -21,24 +21,21 @@ interface PlaylistAndInfoProps {
     dispatcher: IPlaylistAndInfoDispatcher;
 }
 
-export default class PlaylistAndInfo extends React.Component<PlaylistAndInfoProps, {}> {
-
-    render() {
-        return (
-            <Row>
-                <Col sm={3}>
-                    <PlaylistManager playlists={this.props.playlistStore.savedPlaylists}
-                                     dispatcher={this.props.dispatcher} />
-                </Col>
-                <Col sm={3}>
-                    <PlaylistComponent playlist={this.props.playlistStore.playlist}
-                                       dispatcher={this.props.dispatcher} />
-                </Col>
-                <Col sm={6}>
-                    <SongInfo song={this.props.playlistStore.song}
-                              stalled={this.props.playerStore.stalled} />
-                </Col>
-            </Row>
-        );
-    }
+export default function PlaylistAndInfo(props: PlaylistAndInfoProps) {
+    return (
+        <Row>
+            <Col sm={3}>
+                <PlaylistManager playlists={props.playlistStore.savedPlaylists}
+                                 dispatcher={props.dispatcher} />
+            </Col>
+            <Col sm={3}>
+                <PlaylistComponent playlist={props.playlistStore.playlist}
+                                   dispatcher={props.dispatcher} />
+            </Col>
+            <Col sm={6}>
+                <SongInfo song={props.playlistStore.song}
+                          stalled={props.playerStore.stalled} />
+            </Col>
+        </Row>
+    );
 }

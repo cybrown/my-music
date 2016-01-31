@@ -20,21 +20,25 @@ interface MusicApplicationProps {
 
 export default class MusicApplication extends React.Component<MusicApplicationProps, {}> {
 
-    render() {
+    forceRender() {
+        this.forceUpdate();
+    }
+
+    render () {
         return (
             <div className="music-application-main">
                 <MusicNavigation dispatcher={this.props.dispatcher}
-                                 store={this.props.store} />
+                                    store={this.props.store} />
                 <Audio dispatcher={this.props.dispatcher}
-                       song={this.props.store.playlist.song}/>
+                        song={this.props.store.playlist.song}/>
                 <Grid fluid={true}>
                     <MusicLibrary store={this.props.store.musicLibrary}
-                                  dispatcher={this.props.dispatcher} />
+                                    dispatcher={this.props.dispatcher} />
                     <PlaylistAndInfo playlistStore={this.props.store.playlist}
-                                     playerStore={this.props.store.player}
-                                     dispatcher={this.props.dispatcher} />
+                                        playerStore={this.props.store.player}
+                                        dispatcher={this.props.dispatcher} />
                 </Grid>
             </div>
         );
     }
-}
+};
