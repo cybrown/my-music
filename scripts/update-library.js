@@ -4,7 +4,7 @@ var mm = require('musicmetadata');
 var uuid = require('uuid');
 var path = require('path');
 
-var publicPath = path.normalize(__dirname + '/../front/public');
+var publicPath = path.normalize(__dirname + '/../front/public').replace(/\\/g, '/');
 var dataFilePath = publicPath + '/data.json';
 
 var results = [];
@@ -19,6 +19,7 @@ glob(publicPath + '/musics/**/*.@(mp3|m4a)', function (err, files) {
     var current = 0;
     files.forEach(function (file) {
         console.log(file);
+        file = file.replace('\\', /\//g);
         console.log(publicPath + '/musics/(.*)');
         var musicId = file.match(publicPath + '/musics/(.*)')[1];
         var idExists = results.filter(function (result) {
