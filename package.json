@@ -16,7 +16,7 @@
     "front-clean": "rimraf front/public/app.js && rimraf tmp/front",
     "front-serve": "http-server front/public",
     "front-watch": "npm run front-build-dev && parallelshell \"npm run front-watch-typescript\" \"npm run front-watch-browserify\" \"npm run front-serve\" ",
-    "front-uglify": "uglify -s front/public/app.js -o front/public/app.js",
+    "front-uglify": "uglifyjs front/public/app.js -o front/public/app.js",
     "update-library": "node ./scripts/update-library.js"
   },
   "author": "",
@@ -32,7 +32,7 @@
     "rimraf": "^2.4.3",
     "tsd": "^0.6.5",
     "typescript": "^1.8.0",
-    "uglify": "^0.1.5",
+    "uglify-js": "^2.7.0",
     "watchify": "^3.4.0"
   },
   "dependencies": {
