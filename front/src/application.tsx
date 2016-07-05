@@ -22,7 +22,7 @@ xhr.onreadystatechange = function () {
 xhr.send();
 
 function bootstrapApp() {
-    const songs = JSON.parse(xhr.responseText);
+    const songs: Song[] = JSON.parse(xhr.responseText);
     const artists: Dict<Artist> = songs.reduce((artists: Dict<Artist>, song: Song) => {
         const normalizedArtist = normalize(song.artist) || 'Unknown artist';
         const normalizedAlbum = normalize(song.album) || 'Unknown album';
@@ -62,6 +62,17 @@ function bootstrapApp() {
             doRender();
         }, timeout, ...args);
     }
+
+    function setSongFromHash() {
+        const songHash = location.hash.slice(1);
+        const song = songs.filter(s => s.uuid === songHash)[0];
+        if (song) {
+            dispatcher.setSong(song);
+        }
+    }
+
+    window.addEventListener('hashchange', setSongFromHash);
+    setSongFromHash();
 
     doRender();
 }

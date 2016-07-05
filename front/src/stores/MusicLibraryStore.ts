@@ -27,4 +27,19 @@ export default class MusicLibraryStore {
         this.songs = album.songs;
         this.currentAlbum = album;
     }
+
+    @On private setSong(pSong: Song) {
+        this.artists.forEach(artist => {
+            toArray(artist.albums).forEach(album => {
+                album.songs.forEach(song => {
+                    if (song.uuid === pSong.uuid) {
+                        this.currentArtist = artist;
+                        this.albums = toArray(this.currentArtist.albums);
+                        this.currentAlbum = album;
+                        this.songs = this.currentAlbum.songs;
+                    }
+                });
+            });
+        });
+    }
 }

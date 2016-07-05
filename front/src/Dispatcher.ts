@@ -102,4 +102,5 @@ export default class Dispatcher implements
     @Emit playerActionPlay(): void { }
     @Emit playerActionPause(): void { }
     @Emit playerVolumeSet(volume: number): void { }
+    @Emit setSong(song: Song): void { }
 }

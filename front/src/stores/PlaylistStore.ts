@@ -145,6 +145,11 @@ export default class PlaylistStore {
         this.playlist.randomize();
     }
 
+    @On private setSong(song: Song) {
+        this.playlist.clear();
+        this.playlistPlayAfter([song]);
+    }
+
     private forcePlayerRestart() {
         const song = this.song;
         this.song = null;

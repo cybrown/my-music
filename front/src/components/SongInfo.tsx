@@ -20,6 +20,7 @@ export default function SongInfo(props: SongInfoProps) {
                     <div>Song title: {props.song.title}</div>
                     <div>Song track: {props.song.track}</div>
                     <div>Song uuid: {props.song.uuid}</div>
+                    <div><a href={'#' + props.song.uuid}>Song link</a></div>
                     <div>
                         <a href={`https://www.google.com/search?q=lyrics+${props.song.artist}+${props.song.title}`}
                         target="_blank">
